@@ -39,13 +39,14 @@ class CNN_Encoder(tf.keras.layers.Layer):
         # (2,2) strided convolution to downsample
         # padding=same for padding of the input image
 
-        self.layers.append(tf.keras.layers.Conv2D(filters=32,
-                                                  kernel_size=(3,3),
-                                                  strides=(2,2),
-                                                  padding='same',
-                                                  input_shape=input_dim))
-        self.layers.append(tf.keras.layers.BatchNormalization())
-        self.layers.append(tf.keras.layers.Activation('relu'))
+        for i in range(4):
+            self.layers.append(tf.keras.layers.Conv2D(filters=32,
+                                                      kernel_size=(3,3),
+                                                      strides=(2,2),
+                                                      padding='same',
+                                                      input_shape=input_dim))
+            self.layers.append(tf.keras.layers.BatchNormalization())
+            self.layers.append(tf.keras.layers.Activation('relu'))
 
         self.layers.append(tf.keras.layers.Conv2D(filters=64,
                                                   kernel_size=(3,3),
@@ -54,9 +55,9 @@ class CNN_Encoder(tf.keras.layers.Layer):
         self.layers.append(tf.keras.layers.BatchNormalization())
         self.layers.append(tf.keras.layers.Activation('relu'))
 
-        # dense layer to set dimension
-        self.layers.append(tf.keras.layers.Flatten())
-        self.layers.append(tf.keras.layers.Dense(latent_dim, activation='relu'))
+        # output layer (latent_space)
+        self.layers.append(tf.keras.layers.GlobalAveragePooling1D())
+        self.layers.append(tf.keras.layers.Dense(latent_dim, activation='tanh'))
 
     def call(self, x, training=False):
         for layer in self.layers:
