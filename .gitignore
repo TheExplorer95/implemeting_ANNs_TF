@@ -3,6 +3,11 @@
 # Janosch
 IANN_lecture
 solution_exam.ipynb
+final/data
+final/__pycache__
+logs
+06/logs
 
 # Minseok
 final/paper_commented.pdf
+final/data
