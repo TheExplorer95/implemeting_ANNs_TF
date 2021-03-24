@@ -15,42 +15,6 @@ data_generator_cpc_arguments = {
     "batch_size" : 8
     }
 
-data_generator_ae_arguments = {
-    "full_duration" : 30,
-    "original_sr" : 22050,
-    "desired_sr" : 22050,
-    "filepaths" : None,
-    "batch_size" : 8
-}
-
-def get_ae_gen(args):
-    global data_generator_ae_arguments
-    data_generator_ae_arguments = args
-    return data_generator_ae
-
-def data_generator_ae():
-
-    global data_generator_ae_arguments
-    original_sr = data_generator_ae_arguments["original_sr"]
-    desired_sr = data_generator_ae_arguments["desired_sr"]
-    duration = data_generator_ae_arguments["full_duration"]
-    filepaths = data_generator_ae_arguments["filepaths"]
-
-    while True:
-        #randomly select sample filepath from list
-        sample = random.sample(filepaths, 1)[0]
-
-        # take audio in the length of one SR
-        audio, sample_rate = decode_audio(sample, original_sr, desired_sr, duration)
-        start = tf.random.uniform(shape=[],
-                                  maxval=audio.shape[0] - sample_rate,
-                                  dtype=tf.int32)
-
-        data = tf.constant(audio[start:start+sample_rate])
-        data = tf.expand_dims(data, axis=-1)
-
-        yield data
-
 def get_cpc_gen(args):
     global data_generator_cpc_arguments
     data_generator_cpc_arguments = args
@@ -66,6 +30,7 @@ def decode_audio(audio_path, original_sr, desired_sr, duration):
     assert len(audio) == sr*duration
     audio = librosa.resample(audio, original_sr, desired_sr)
     return tf.constant(audio, dtype=tf.float32), desired_sr
+
 
 def data_generator_cpc():
     """
