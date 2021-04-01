@@ -111,7 +111,7 @@ def create_cpc_ds():
                                        name=None)
     )
 
-    train_ds = train_ds.prefetch(tf.data.AUTOTUNE).cache()
+    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
     return train_ds
 
