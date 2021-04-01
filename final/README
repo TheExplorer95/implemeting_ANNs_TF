@@ -8,6 +8,11 @@ understanding the architecture: https://docs.google.com/document/d/1vpp3cngJae6C
 
 architecture sketch: https://drive.google.com/file/d/11RUvDStE3hayDFU-9nTvAeynMndV5c1v/view?usp=sharing
 
-DatasetGen.ipynb: data pipeline
+/Data conversion: scripts to convert data
 
-model_minseok.ipynb: the main model
+/model: trained model weights
+
+/figures: figures of reults
+
+/results: .npy of training results
+
