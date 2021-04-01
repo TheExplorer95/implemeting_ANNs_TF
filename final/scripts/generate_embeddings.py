@@ -18,7 +18,7 @@ def create_classifier_dataset(embedding_path):
 
     classes = ["blues", "reggae", "metal", "rock", "pop", "classical", "country", "disco", "jazz", "hiphop"]
 
-    em_onehot_labels = [tf.eye(len(classes))[i for i, label in enumerate(classes) if label in p] for p in em_filepaths]
+    em_onehot_labels = [tf.eye(len(classes))[l] for l in [[i for i, label in enumerate(classes) if label in p][0] for p in em_filepaths]]
 
     ds = tf.data.Dataset.from_tensor_slices((embedding_data, em_onehot_labels))
 
