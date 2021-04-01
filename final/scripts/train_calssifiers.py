@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import tensorflow as tf
 
 from params import *
@@ -21,6 +22,29 @@ def plot_classifier_training(history, epochs, save_plot_as):
     plt.savefig(save_plot_as, bbox_inches='tight')
 
 
+def plot_confusion_matrix(test_ds, model, plotname):
+    test_em = []
+    test_labels = []
+    classes = ["blues", "reggae", "metal", "rock", "pop", "classical", "country", "disco", "jazz", "hiphop"]
+
+    for em, label in test_ds:
+        test_em.append(em.numpy())
+        test_labels.append(label.numpy())
+    test_em = np.array(test_em)
+    test_labels = np.array(test_labels)
+
+    y_pred = np.argmax(model.predict(test_em), axis=1)
+    y_true = test_labels
+    
+    confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(confusion_mtx, xticklabels=classes, yticklabels=classes,
+                annot=True, fmt='g')
+    plt.xlabel('Prediction')
+    plt.ylabel('Label')
+    plt.savefig(plotname.replace('.png', 'confusion.png'), bbox_inches='tight')
+
+
 # 3 design principles
 model = get_classifier(c_dim, 10)
 optimizer = tf.keras.optimizers.Adam(learning_rate_class)
@@ -29,10 +53,6 @@ cce = tf.keras.losses.CategoricalCrossentropy()
 # generate dataset from saved embeddings
 train_ds = create_classifier_dataset(path_load_embeddings_train)
 test_ds = create_classifier_dataset(path_load_embeddings_test)
-
-# create save_plot_as list of filenames/paths for the plots
-
-# iterate over datasets list and do the following. also iterate (with zip) over the save_plot_as list.
 
 # train and test the model
 model.compile(optimizer = optimizer,

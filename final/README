@@ -12,7 +12,12 @@ architecture sketch: https://drive.google.com/file/d/11RUvDStE3hayDFU-9nTvAeynMn
 
 /model: trained model weights
 
-/figures: figures of reults
+/results: .npy of training results and figures
 
-/results: .npy of training results
+/scripts: python scripts to run the model
+
+ - params.py: only file to change
+ - train_cpc.py: train cpc and save weights
+ - generate_embeddings.py: generate embeddings using trained cpc
+ - train_classifiers.py: train and test classifiers using embeddings
 
