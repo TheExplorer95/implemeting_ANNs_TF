@@ -1,7 +1,5 @@
 import numpy as np
 import tensorflow as tf
-from datetime import datetime
-
 
 @tf.function
 def train_step(model, ds, loss_function, optimizer,
@@ -40,10 +38,8 @@ def train_cpc(cpc_model, train_ds, loss_function, optimizer, epochs, steps_per_e
 
         train_loss_metric.reset_states()
 
-    now = datetime.now()
 
     # save model parameters to .h5 file. Can afterwards be loaded with cpc.load_weights(load_from)
-    save_to = save_to + str(now)[:-10] + ".h5"
     cpc_model.save_weights(save_to, overwrite=False)
 
     # save loss array for later visualization
