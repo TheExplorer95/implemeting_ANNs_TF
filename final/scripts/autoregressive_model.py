@@ -9,7 +9,7 @@ class GRU_AR(tf.keras.layers.Layer):
     '''
 
     def __init__(self, c_dim):
-        super(Autoregressive, self).__init__()
+        super(GRU_AR, self).__init__()
         self.gru = tf.keras.layers.GRU(c_dim, name='ar_context', )
 
     def call(self, z_sequence):
