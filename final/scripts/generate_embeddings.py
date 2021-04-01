@@ -50,8 +50,8 @@ def generate_embeddings(model, num_em_samples_per_data, folder_path, save_to, ma
 
             embedding = model.get_embedding(audio)
             embedding = tf.squeeze(embedding, axis= 0)
-            save_to = save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
-            np.save(save_to, embedding.numpy())
+            save_to_ = save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
+            np.save(save_to_, embedding.numpy())
 
 
 # Load the trained model
