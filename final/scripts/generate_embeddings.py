@@ -6,24 +6,6 @@ import tensorflow_io as tfio
 from params import *
 from cpc_model import CPC, Predict_z
 
-### from a folder with embedding npy files, create a tf dataset with labels
-def create_classifier_dataset(embedding_path):
-    '''
-    Works only when the contained string doesn't have multiple class names
-    '''
-    em_files = os.listdir(embedding_path)
-    em_filepaths = [os.path.join(embedding_path, f) for f in em_files] # train files was created for training
-
-    embedding_data = [np.load(x) for x in em_filepaths]
-
-    classes = ["blues", "reggae", "metal", "rock", "pop", "classical", "country", "disco", "jazz", "hiphop"]
-
-    em_onehot_labels = [tf.reshape(tf.eye(len(classes))[l], (1, len(classes))) for l in [[i for i, label in enumerate(classes) if label in p][0] for p in em_filepaths]]
-
-    ds = tf.data.Dataset.from_tensor_slices((embedding_data, em_onehot_labels))
-
-    return ds
-
 
 ### create embeddings (requires its own main script where all trained models are used to get embeddings)
 def generate_embeddings(model, num_em_samples_per_data, folder_path, save_to, max_duration=30):
