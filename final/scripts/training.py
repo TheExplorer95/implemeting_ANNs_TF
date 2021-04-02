@@ -104,7 +104,7 @@ def train_cpc(
             )
 
         print(
-            f"[Epoch {e}] - deltaT: {elapsed_time:0.2f}s - loss: {train_losses[-1]:0.6f}"
+            f"[Epoch {e}] - dT: {elapsed_time:0.2f}s - loss: {train_losses[-1]:0.6f}"
         )
 
     # save model parameters to .h5 file. Can afterwards be loaded with cpc.load_weights(load_from)
