@@ -3,14 +3,17 @@ import tensorflow as tf
 
 
 class GRU_AR(tf.keras.layers.Layer):
-    '''
+    """
     GRU RNN that takes a sequence of audio window embeddings and combines them into a context embedding.
     c_dim: length of context embedding vector
-    '''
+    """
 
     def __init__(self, c_dim):
         super(GRU_AR, self).__init__()
-        self.gru = tf.keras.layers.GRU(c_dim, name='ar_context', )
+        self.gru = tf.keras.layers.GRU(
+            c_dim,
+            name="ar_context",
+        )
 
     def call(self, z_sequence):
         # input dim: [batch, T, z]
@@ -25,9 +28,9 @@ def get_angles(pos, i, d_model):
 
 
 def positional_encoding(position, d_model):
-    angle_rads = get_angles(np.arange(position)[:, np.newaxis],
-                            np.arange(d_model)[np.newaxis, :],
-                            d_model)
+    angle_rads = get_angles(
+        np.arange(position)[:, np.newaxis], np.arange(d_model)[np.newaxis, :], d_model
+    )
 
     # apply sin to even indices in the array; 2i
     angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
@@ -66,11 +69,13 @@ def scaled_dot_product_attention(q, k, v, mask):
 
     # add the mask to the scaled tensor.
     if mask is not None:
-        scaled_attention_logits += (mask * -1e9)
+        scaled_attention_logits += mask * -1e9
 
     # softmax is normalized on the last axis (seq_len_k) so that the scores
     # add up to 1.
-    attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)  # (..., seq_len_q, seq_len_k)
+    attention_weights = tf.nn.softmax(
+        scaled_attention_logits, axis=-1
+    )  # (..., seq_len_q, seq_len_k)
 
     output = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
 
@@ -114,13 +119,16 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)
         # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
         scaled_attention, attention_weights = scaled_dot_product_attention(
-            q, k, v, mask)
+            q, k, v, mask
+        )
 
-        scaled_attention = tf.transpose(scaled_attention,
-                                        perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
+        scaled_attention = tf.transpose(
+            scaled_attention, perm=[0, 2, 1, 3]
+        )  # (batch_size, seq_len_q, num_heads, depth)
 
-        concat_attention = tf.reshape(scaled_attention,
-                                      (batch_size, -1, self.d_model))  # (batch_size, seq_len_q, d_model)
+        concat_attention = tf.reshape(
+            scaled_attention, (batch_size, -1, self.d_model)
+        )  # (batch_size, seq_len_q, d_model)
 
         output = self.dense(concat_attention)  # (batch_size, seq_len_q, d_model)
 
@@ -128,10 +136,12 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
 
 def point_wise_feed_forward_network(d_model, dff):
-    return tf.keras.Sequential([
-        tf.keras.layers.Dense(dff, activation='relu'),  # (batch_size, seq_len, dff)
-        tf.keras.layers.Dense(d_model)  # (batch_size, seq_len, d_model)
-    ])
+    return tf.keras.Sequential(
+        [
+            tf.keras.layers.Dense(dff, activation="relu"),  # (batch_size, seq_len, dff)
+            tf.keras.layers.Dense(d_model),  # (batch_size, seq_len, d_model)
+        ]
+    )
 
 
 class Trans_EncoderLayer(tf.keras.layers.Layer):
@@ -154,15 +164,26 @@ class Trans_EncoderLayer(tf.keras.layers.Layer):
 
         ffn_output = self.ffn(out1)  # (batch_size, input_seq_len, d_model)
         ffn_output = self.dropout2(ffn_output, training=training)
-        out2 = self.layernorm2(out1 + ffn_output)  # (batch_size, input_seq_len, d_model)
+        out2 = self.layernorm2(
+            out1 + ffn_output
+        )  # (batch_size, input_seq_len, d_model)
 
         return out2
 
 
 class Transformer(tf.keras.layers.Layer):
-    def __init__(self, num_enc_layers, num_heads,
-                 z_dim, dff, dense_units, activation, maximum_position_encoding, rate=0.1):
-        '''
+    def __init__(
+        self,
+        num_enc_layers,
+        num_heads,
+        z_dim,
+        dff,
+        dense_units,
+        activation,
+        maximum_position_encoding,
+        rate=0.1,
+    ):
+        """
         num_enc_layers: num. transformer encoder layers to be stacked
         num_heads: num. sets of q,k,v
         z_dim: z_dim
@@ -171,7 +192,7 @@ class Transformer(tf.keras.layers.Layer):
         activation: activation func. to use for additional dense layers
         maximum_position_encoding: T in our case, max length of sequence
         rate: dropout rate
-        '''
+        """
         super(Transformer, self).__init__()
 
         self.z_dim = z_dim
@@ -179,19 +200,22 @@ class Transformer(tf.keras.layers.Layer):
 
         # embedding layer isn't needed as the input is already embedded
         # self.embedding = tf.keras.layers.Embedding(input_vocab_size, z_dim)
-        self.pos_encoding = positional_encoding(maximum_position_encoding,
-                                                self.z_dim)
+        self.pos_encoding = positional_encoding(maximum_position_encoding, self.z_dim)
 
-        self.enc_layers = [Trans_EncoderLayer(z_dim, num_heads, dff, rate)
-                           for _ in range(num_enc_layers)]
+        self.enc_layers = [
+            Trans_EncoderLayer(z_dim, num_heads, dff, rate)
+            for _ in range(num_enc_layers)
+        ]
 
         self.dropout = tf.keras.layers.Dropout(rate)
 
         # additional dense layer and dropouts at the end
-        self.fcnet = [[tf.keras.layers.Dense(n_l, activation), tf.keras.layers.Dropout(rate)] for n_l in dense_units]
+        self.fcnet = [
+            [tf.keras.layers.Dense(n_l, activation), tf.keras.layers.Dropout(rate)]
+            for n_l in dense_units
+        ]
         self.fcnet = [l for sublist in self.fcnet for l in sublist]  # flatten
         del self.fcnet[-1]  # last dropout
-
 
     def call(self, x, training, mask=None):
 
@@ -205,7 +229,9 @@ class Transformer(tf.keras.layers.Layer):
         x = self.dropout(x, training=training)
 
         for i in range(self.num_enc_layers):
-            x = self.enc_layers[i](x, training, mask)  # (batch_size, input_seq_len, z_dim)
+            x = self.enc_layers[i](
+                x, training, mask
+            )  # (batch_size, input_seq_len, z_dim)
 
         x = tf.keras.layers.Flatten()(x)  # (batch_size, input_seq_len*z_dim)
         for i in range(len(self.fcnet)):

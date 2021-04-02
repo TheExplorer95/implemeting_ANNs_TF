@@ -14,7 +14,9 @@ def decode_audio(audio_path, original_sr, desired_sr, duration, max_duration=30)
     """
 
     audio_binary = tf.io.read_file(audio_path)
-    audio, sr = tf.audio.decode_wav(audio_binary, desired_channels=1, desired_samples=max_duration * original_sr)
+    audio, sr = tf.audio.decode_wav(
+        audio_binary, desired_channels=1, desired_samples=max_duration * original_sr
+    )
     audio = tf.image.random_crop(audio, size=(duration * sr, 1))
 
     if not desired_sr == original_sr:
@@ -24,17 +26,17 @@ def decode_audio(audio_path, original_sr, desired_sr, duration, max_duration=30)
 
 
 def preprocess_mel_spec(mel_spec):
-    '''
+    """
     Preprocesses single mel spectra: 1. Standardization along time axis,
     2. gaussian_filter along time axis.
 
     mel_spec: tf.tensor or numpy array with n_mels x n_timesteps dimensions
-    '''
+    """
 
     # standardization (over timesteps/per mel bin)
     mean = tf.expand_dims(tf.math.reduce_mean(mel_spec, axis=-1), axis=-1)
     std = tf.expand_dims(tf.math.reduce_std(mel_spec, axis=-1), axis=-1)
-    mel_spec = (mel_spec-mean)/std
+    mel_spec = (mel_spec - mean) / std
 
     # gaussian filter
     mel_spec = scipy.ndimage.gaussian_filter1d(mel_spec, sigma=2, axis=1)
@@ -69,7 +71,9 @@ def batch_data_generator():
     batch_size = N
 
     window_size = duration * desired_sr / (T + k)
-    assert not window_size % 1, f"duration*sample rate and (T+k) must be divisible. Currently duration*sample_rate = {duration * desired_sr} and (T+k) = {T + k}"
+    assert (
+        not window_size % 1
+    ), f"duration*sample rate and (T+k) must be divisible. Currently duration*sample_rate = {duration * desired_sr} and (T+k) = {T + k}"
     window_size = int(window_size)
     folder = os.listdir(data_path)
     filepaths = [os.path.join(data_path, f) for f in folder]
@@ -77,7 +81,9 @@ def batch_data_generator():
 
         # get audio from randomly sampled paths, truncated to duration and resampled to desired sr
         paths = random.sample(filepaths, batch_size)
-        songs = [decode_audio(path, original_sr, desired_sr, duration)[0] for path in paths]
+        songs = [
+            decode_audio(path, original_sr, desired_sr, duration)[0] for path in paths
+        ]
 
         batch = []
         for idx in range(batch_size):
@@ -89,15 +95,18 @@ def batch_data_generator():
             # add a set of negative (not coming from index idx) sample audio windows of size (1,k,window_size,1)
             for i, audio in enumerate(songs):
                 if i != idx:
-                    samples.append(tf.reshape(
-                        tensor=tf.image.random_crop(audio, size=[window_size * k]),
-                        shape=(1, k, window_size, 1)))
+                    samples.append(
+                        tf.reshape(
+                            tensor=tf.image.random_crop(audio, size=[window_size * k]),
+                            shape=(1, k, window_size, 1),
+                        )
+                    )
 
             # get one sample with shape (1, T +k*N, window_size, 1)
             batch.append(tf.concat(samples, axis=1))
 
         yield tf.concat(batch, axis=0)  # yield complete batch from single
-                                        # samples
+        # samples
 
 
 def batch_data_generator_spectogram():
@@ -132,33 +141,44 @@ def batch_data_generator_spectogram():
     while True:
         # 1. load and preprocess
         # random indices for batch amount of mel specs
-        batch_idxs = tf.random.uniform((batch_size,),
-                                       minval=0,
-                                       maxval=n_samples-1,
-                                       dtype=tf.dtypes.int32)
+        batch_idxs = tf.random.uniform(
+            (batch_size,), minval=0, maxval=n_samples - 1, dtype=tf.dtypes.int32
+        )
 
-        mel_specs = [preprocess_mel_spec(np.load(data_paths[idx])) for i, idx in enumerate(batch_idxs)]
+        mel_specs = [
+            preprocess_mel_spec(np.load(data_paths[idx]))
+            for i, idx in enumerate(batch_idxs)
+        ]
 
-        neg_img_idxs = tf.random.uniform((batch_size, N-1),
-                                         minval=0,
-                                         maxval=batch_size,
-                                         dtype=tf.dtypes.int32)
+        neg_img_idxs = tf.random.uniform(
+            (batch_size, N - 1), minval=0, maxval=batch_size, dtype=tf.dtypes.int32
+        )
 
         batch = []
         for batch_idx in tf.range(batch_size):
             samples = []
             # 2. get T timesteps and the k pos timesteps for f_score
-            samples.extend(tf.split(tf.image.random_crop(mel_specs[batch_idx],
-                                                         size=[n_mels, window_size*(T+k), 1]),
-                                    num_or_size_splits=T+k,
-                                    axis=1))
+            samples.extend(
+                tf.split(
+                    tf.image.random_crop(
+                        mel_specs[batch_idx], size=[n_mels, window_size * (T + k), 1]
+                    ),
+                    num_or_size_splits=T + k,
+                    axis=1,
+                )
+            )
 
             # 3. get k*N negative timesteps
             for neg_idx in neg_img_idxs[batch_idx]:
-                samples.extend(tf.split(tf.image.random_crop(mel_specs[neg_idx],
-                                                             size=[n_mels, window_size*k, 1]),
-                                        num_or_size_splits=k,
-                                        axis=1))
+                samples.extend(
+                    tf.split(
+                        tf.image.random_crop(
+                            mel_specs[neg_idx], size=[n_mels, window_size * k, 1]
+                        ),
+                        num_or_size_splits=k,
+                        axis=1,
+                    )
+                )
 
             batch.append(tf.stack(samples))
 
@@ -182,7 +202,7 @@ def create_cpc_ds(enc_model=enc_model):
     data_path:          Path to the trainign data.
     """
 
-    if enc_model == '1d_conv':
+    if enc_model == "1d_conv":
         T = data_generator_arguments["T"]
         k = data_generator_arguments["k"]
         N = data_generator_arguments["N"]
@@ -195,33 +215,37 @@ def create_cpc_ds(enc_model=enc_model):
         data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
 
         train_ds = tf.data.Dataset.from_generator(
-                        generator=batch_data_generator,
-                        output_signature=tf.TensorSpec(data_shape,
-                                                       dtype=tf.dtypes.float32,
-                                                       name=None))
+            generator=batch_data_generator,
+            output_signature=tf.TensorSpec(
+                data_shape, dtype=tf.dtypes.float32, name=None
+            ),
+        )
 
-    elif enc_model == '2d_conv':
+    elif enc_model == "2d_conv":
         T = data_generator_arguments["T"]
         k = data_generator_arguments["k"]
         N = data_generator_arguments["N"]
         batch_size = data_generator_arguments["batch_size"]
-        sample_file_path = os.path.join(data_generator_arguments["data_path"],
-                                        os.listdir(data_generator_arguments["data_path"])[0])
+        sample_file_path = os.path.join(
+            data_generator_arguments["data_path"],
+            os.listdir(data_generator_arguments["data_path"])[0],
+        )
 
         sample = np.load(sample_file_path)
         n_mels = sample.shape[0]
         window_size = n_mels  # assumes square input
 
         # output shape of generator given the arguments
-        data_shape = (batch_size, T+k*N, n_mels, window_size, 1)
+        data_shape = (batch_size, T + k * N, n_mels, window_size, 1)
 
         train_ds = tf.data.Dataset.from_generator(
-                        generator=batch_data_generator_spectogram,
-                        output_signature=tf.TensorSpec(data_shape,
-                                                       dtype=tf.dtypes.float32,
-                                                       name=None))
+            generator=batch_data_generator_spectogram,
+            output_signature=tf.TensorSpec(
+                data_shape, dtype=tf.dtypes.float32, name=None
+            ),
+        )
     else:
-        print(f'[Error] - The desired encoder model: {enc_model} was not implemented')
+        print(f"[Error] - The desired encoder model: {enc_model} was not implemented")
 
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 

@@ -2,14 +2,14 @@ import tensorflow as tf
 
 
 class Conv1DEncoder(tf.keras.layers.Layer):
-    '''
+    """
     Encodes an input 1D sequence into an audio window embedding.
     z_dim: size of embedding
     stride_sizes: list of stride arguments for Conv1D layers
     kernel_sizes: list of kernel size arguments for Conv1D layers
     n_filters:    list of filter number arguments for Conv1D layers
     activation:   activation function used in Conv1D layers and for output Dense layer. (e.g. "relu" or tf.nn.relu)
-    '''
+    """
 
     def __init__(self, z_dim, stride_sizes, kernel_sizes, n_filters, activation):
         super(Conv1DEncoder, self).__init__()
@@ -42,12 +42,21 @@ class Conv1DEncoder(tf.keras.layers.Layer):
 
 
 class Conv2DEncoder(tf.keras.layers.Layer):
-    '''
+    """
     g_enc: strided 2d convolution
-    '''
+    """
 
-    def __init__(self, z_dim, stride_sizes, kernel_sizes, n_filters,
-                 dense_units, conv_fct, dense_act, kernel_reg):
+    def __init__(
+        self,
+        z_dim,
+        stride_sizes,
+        kernel_sizes,
+        n_filters,
+        dense_units,
+        conv_fct,
+        dense_act,
+        kernel_reg,
+    ):
         super(Conv2DEncoder, self).__init__()
 
         s = stride_sizes
@@ -65,24 +74,30 @@ class Conv2DEncoder(tf.keras.layers.Layer):
         self.enc_layers = []
 
         for l in range(len(s)):
-            self.enc_layers.append(tf.keras.layers.Conv2D(filters=f[l],
-                                                          kernel_size=k[l],
-                                                          strides=s[l],
-                                                          padding="same",
-                                                          kernel_regularizer=regularizer()))
+            self.enc_layers.append(
+                tf.keras.layers.Conv2D(
+                    filters=f[l],
+                    kernel_size=k[l],
+                    strides=s[l],
+                    padding="same",
+                    kernel_regularizer=regularizer(),
+                )
+            )
             self.enc_layers.append(tf.keras.layers.SpatialDropout2D(0.1))
             self.enc_layers.append(tf.keras.layers.Activation(conv_fct))
 
         self.enc_layers.append(tf.keras.layers.GlobalAveragePooling2D())
 
         for l in range(len(d)):
-            self.enc_layers.append(tf.keras.layers.Dense(units=d[l],
-                                                         kernel_regularizer=regularizer()))
+            self.enc_layers.append(
+                tf.keras.layers.Dense(units=d[l], kernel_regularizer=regularizer())
+            )
             self.enc_layers.append(tf.keras.layers.Activation(dense_act))
             self.enc_layers.append(tf.keras.layers.Dropout(0.1))
 
-        self.enc_layers.append(tf.keras.layers.Dense(self.z_dim,
-                                                     kernel_regularizer=regularizer()))
+        self.enc_layers.append(
+            tf.keras.layers.Dense(self.z_dim, kernel_regularizer=regularizer())
+        )
         self.enc_layers.append(tf.keras.layers.Activation(dense_act))
 
     def call(self, x, training):
