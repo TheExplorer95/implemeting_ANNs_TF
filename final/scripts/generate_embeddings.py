@@ -171,10 +171,10 @@ cpc.load_weights(path_load_model)
 
 # Use CPC to generate embeddings
 generate_embeddings(
-    cpc, num_em_samples_per_data, path_data_train, path_save_embeddings_train
+    cpc, num_em_samples_per_train_data, path_data_train, path_save_embeddings_train
 )
 generate_embeddings(
-    cpc, num_em_samples_per_data, path_data_test, path_save_embeddings_test
+    cpc, num_em_samples_per_test_data, path_data_test, path_save_embeddings_test
 )
 
 # -------TSNE plotting of the train and test embeddings---------------------

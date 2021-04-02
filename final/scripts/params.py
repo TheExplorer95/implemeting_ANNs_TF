@@ -1,6 +1,18 @@
+import argparse
 import tensorflow as tf
 import os
 from datetime import datetime
+
+
+def get_command_line_args():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-m", "--model_name",
+                    type=str,
+                    default='1dconv_gru',
+                    help='Currently implemented: 1dconv_gru/, 1dconv_gru/,\
+                    2dconv_gru/, 2dconv_transformer/')
+
+    return vars(ap.parse_args())
 
 
 def check_dirs(path_list):
@@ -20,8 +32,9 @@ else:
     tf.keras.mixed_precision.set_global_policy("float32")
 
 # ----------- setting Path variables-----------------------------
-modelname = "2dconv_gru/"  # '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
-mode = "colab"  # 'local'
+cmd_args = get_command_line_args()
+modelname = cmd_args['model_name']  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
+mode = "local"  # one of 'colab', 'local'
 if mode == "local":
     project_path = os.path.dirname(os.getcwd())  # path to the project folder
 else:  # colab
@@ -75,7 +88,8 @@ batch_size_classifier = 32
 
 # -------------- classifier data params --------------------------
 # How often to sample from a single data to get different parts
-num_em_samples_per_data = 1  # 10 
+num_em_samples_per_train_data = 10
+num_em_samples_per_test_data = 1
 
 # -------------- encoder params -----------------------------------
 z_dim = 256
@@ -84,7 +98,7 @@ z_dim = 256
 if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
     enc_model = "1d_conv"
     # location of raw audio to train cpc
-    path_data_cpc = os.path.join(project_path, "data/fma")
+    path_data_cpc = os.path.join(project_path, "data/fma_small_mono_wav/")
     # location of raw audio to generate embeddings
     path_data_train = os.path.join(project_path, "data/GTZAN/")
     path_data_test = os.path.join(project_path, "data/test_data/")
