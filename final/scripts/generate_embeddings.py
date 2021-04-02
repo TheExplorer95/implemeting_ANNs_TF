@@ -84,7 +84,6 @@ def generate_embeddings(
                 audio = tf.reshape(audio, (1, segments, segment_length, 1))
 
                 embedding = model.get_embedding(audio)
-                embedding = tf.reshape(embedding, (1, c_dim))
                 save_to_ = (
                     save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
                 )
@@ -95,19 +94,23 @@ def generate_embeddings(
         folder = os.listdir(folder_path)
         filepaths = [os.path.join(folder_path, f) for f in folder]
 
-        segments = data_generator_arguments["T"] + data_generator_arguments["k"]
-        sample = np.load(fpath)
+        segments = data_generator_arguments['T'] + data_generator_arguments['k']
+        sample = np.load(filepaths[0])
         n_mels = sample.shape[0]
         segment_length = n_mels
 
         for i in range(num_em_samples_per_data):
-
             for fpath in filepaths:
+                # load the file
                 mel_spec = np.load(fpath)
-                n_mels = mel_spec.shape[0]
-                mel_spec = tf.image.random_crop(
-                    mel_spec, size=(n_mels, segments * segment_length)
-                )
+                mel_spec = tf.image.random_crop(mel_spec, size=(n_mels, segments*segment_length))   # get random window as input for the encoder
+                mel_spec = tf.stack(tf.split(mel_spec, num_or_size_splits=segments, axis=1))    # make slices from entire windown
+                mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)    # add batch and channel dim
+
+                # get and save the embedding
+                embedding = model.get_embedding(mel_spec)
+                save_to_ = save_to + str(i) + os.path.basename(fpath)
+                np.save(save_to_, embedding.numpy())
 
 
 # Load the trained model
