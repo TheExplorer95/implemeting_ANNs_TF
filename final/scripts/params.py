@@ -23,7 +23,7 @@ modelname = '1dconv_gru/'  # '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 project_path = os.path.dirname(os.getcwd())  # path to the project folder
 # location of raw .wav or .npy mel_spectra
 path_data_train = os.path.join(project_path, 'data/')
-path_data_test = os.path.join(project_path, 'data/youtube/')
+path_data_test = os.path.join(project_path, 'data/test_data/')
 # location to load intermediate weights if training wasn't done until the end
 path_to_continue_training = False
 
@@ -46,8 +46,8 @@ path_save_classifier_plots = os.path.join(project_path, 'results/classifier/', m
 check_dirs([path_save_embeddings_train, path_save_embeddings_test, path_save_classifier_plots, path_save_cpc])
 
 # ------------- training params ---------------------------------
-epochs_cpc = 1  #500
-steps_per_epoch_cpc = 1  #100
+epochs_cpc = 100  #500
+steps_per_epoch_cpc = 100
 epochs_class = 1  #1000
 learning_rate = 2e-5  # for cpc
 learning_rate_class = 1e-3  # for classifier

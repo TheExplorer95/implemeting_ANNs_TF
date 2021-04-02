@@ -2,9 +2,37 @@ import os
 import numpy as np
 import tensorflow as tf
 import tensorflow_io as tfio
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from params import *
 from cpc_model import CPC, Predict_z
+
+
+def load_embeddings(path):
+    em_files = os.listdir(path)
+    em_filepaths = [os.path.join(path, f) for f in em_files] # train files was created for training
+
+    return np.concatenate([np.reshape(np.load(x), (1,c_dim)) for x in em_filepaths], axis=0)
+
+
+def plot_tsne(data, labels, save_path, title, fn='tsne_plot.svg'):
+    # get and fit data
+    tsne_data = TSNE(n_components=2).fit_transform(data)
+
+    # create figure
+    plt.figure(figsize=(10, 10))
+    tsne_plot = sns.scatterplot(x=tsne_data[:, 0],
+                                y=tsne_data[:, 1],
+                                hue=labels,
+                                palette=['purple','red','orange','brown','blue',
+                                         'dodgerblue','green','lightgreen','darkcyan', 'black'],
+                                legend='full')
+
+    tsne_plot.legend(loc='center left', bbox_to_anchor=(1, 0.5), ncol=1)
+    tsne_plot.set_title(f'TSNE plot of the {title} Embeddings', fontdict={'fontsize': 25})
+    plt.savefig(os.path.join(save_path, fn), bbox_inches='tight')
 
 
 ### create embeddings (requires its own main script where all trained models are used to get embeddings)
@@ -40,6 +68,7 @@ def generate_embeddings(model, num_em_samples_per_data, folder_path, save_to, ma
 # init
 cpc = CPC(data_generator_arguments["T"], data_generator_arguments["k"], data_generator_arguments["N"],
           z_dim, c_dim, enc_model, ar_model, Predict_z, encoder_args, ar_args, mixed_precision)
+
 # compile by feeding dummy data
 T = data_generator_arguments["T"]
 k = data_generator_arguments["k"]
@@ -52,10 +81,25 @@ data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
 dummy_data = tf.random.normal(data_shape, 0, 1)
 cpc(dummy_data)
 cpc.summary()
+
 # load trained model
-if path_load_model:
-    cpc.load_weights(path_load_model)
+cpc.load_weights(path_load_model)
 
 # Use CPC to generate embeddings
 generate_embeddings(cpc, num_em_samples_per_data, path_data_train, path_save_embeddings_train)
 generate_embeddings(cpc, num_em_samples_per_data, path_data_test, path_save_embeddings_test)
+
+# -------TSNE plotting of the train and test embeddings---------------------
+# load the data
+embeddings_train = load_embeddings(path_load_embeddings_train)
+embeddings_test = load_embeddings(path_load_embeddings_test)
+
+# compute the labels
+classes = ["blues", "reggae", "metal", "rock", "pop", "classical",
+           "country", "disco", "jazz", "hiphop"]
+labels_train = [[classes[i] for i, label in enumerate(classes) if label in p][0] for p in os.listdir(path_load_embeddings_train)]
+labels_test = [[classes[i] for i, label in enumerate(classes) if label in p][0] for p in os.listdir(path_load_embeddings_test)]
+
+# do the tsne
+plot_tsne(embeddings_train, labels_train, path_save_classifier_plots, 'training', 'tsne_trainEmbeddings.svg')
+plot_tsne(embeddings_test, labels_test, path_save_classifier_plots, 'test', 'tsne_testEmbeddings.svg')

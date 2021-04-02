@@ -4,9 +4,10 @@ import seaborn as sns
 import tensorflow as tf
 import os
 
+from sklearn.manifold import TSNE
+
 from params import *
 from classifier_model import get_classifier
-
 
 
 ### from a folder with embedding npy files, create a tf dataset with labels
@@ -67,12 +68,6 @@ def plot_confusion_matrix(test_ds, model, save_path):
     plt.savefig(os.path.join(save_path, plt_fn), bbox_inches='tight')
 
 
-def plot_tsne():
-    pass
-    # get labels from filenames
-    # [i for i, label in enumerate(classes) if label in p][0] for p in em_filepaths]
-
-
 # 3 design principles
 model = get_classifier(c_dim, 10)
 optimizer = tf.keras.optimizers.Adam(learning_rate_class)
@@ -89,10 +84,12 @@ model.compile(optimizer=optimizer,
 history = model.fit(train_ds, epochs=epochs_class, batch_size=batch_size_classifier,
                     validation_data=test_ds) # add additional arguments
 
-### save history and plots
+
+# analysis of the model
+# 1. Loss
 plot_classifier_training(history, epochs_class, path_save_classifier_plots)
 exp_data_fn = 'train_results.npy'
 np.save(os.path.join(path_save_classifier_plots, exp_data_fn), history.history)
 
-### plot confusion matrix
+# 2. Confusion matrix
 plot_confusion_matrix(test_ds, model, path_save_classifier_plots)
