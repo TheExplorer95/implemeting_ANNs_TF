@@ -101,16 +101,24 @@ def generate_embeddings(
 
         for i in range(num_em_samples_per_data):
             for fpath in filepaths:
-                # load the file
-                mel_spec = np.load(fpath)
-                mel_spec = tf.image.random_crop(mel_spec, size=(n_mels, segments*segment_length))   # get random window as input for the encoder
-                mel_spec = tf.stack(tf.split(mel_spec, num_or_size_splits=segments, axis=1))    # make slices from entire windown
-                mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)    # add batch and channel dim
+                nan_bool = None
+                while nan_bool or nan_bool is None:
+                    # load the file
+                    mel_spec = np.load(fpath)
+                    mel_spec = tf.image.random_crop(mel_spec, size=(n_mels, segments*segment_length))   # get random window as input for the encoder
+                    mel_spec = tf.stack(tf.split(mel_spec, num_or_size_splits=segments, axis=1))    # make slices from entire windown
+                    mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)    # add batch and channel dim
 
-                # get and save the embedding
-                embedding = model.get_embedding(mel_spec)
-                save_to_ = save_to + str(i) + os.path.basename(fpath)
-                np.save(save_to_, embedding.numpy())
+                    # get and save the embedding
+                    embedding = model.get_embedding(mel_spec)
+                    if tf.reduce_any(tf.math.is_nan(embedding)):
+                        nan_bool = True
+                        continue
+                    else:
+                        nan_bool = False
+
+                    save_to_ = save_to + str(i) + os.path.basename(fpath)
+                    np.save(save_to_, embedding.numpy())
 
 
 # Load the trained model
@@ -176,7 +184,7 @@ generate_embeddings(
 generate_embeddings(
     cpc, num_em_samples_per_test_data, path_data_test, path_save_embeddings_test
 )
-
+breakpoint()
 # -------TSNE plotting of the train and test embeddings---------------------
 # load the data
 embeddings_train = load_embeddings(path_load_embeddings_train)

@@ -79,10 +79,10 @@ check_dirs(
 )
 
 # ------------- training params ---------------------------------
-epochs_cpc = 1  # 500
+epochs_cpc = 700
 steps_per_epoch_cpc = 100
-epochs_class = 1  # 1000
-learning_rate = 2e-5  # for cpc
+epochs_class = 1000
+learning_rate = 1e-5  # for cpc
 learning_rate_class = 1e-3  # for classifier
 batch_size_classifier = 32
 
