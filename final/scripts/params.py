@@ -8,11 +8,11 @@ else:
     tf.keras.mixed_precision.set_global_policy('float32')
 
 # data path
-modelname = '1dconv_transformer/'  # '1dconv_gru', '2dconv_gru', '2dconv_transformer'
-cwd = '/content/drive/MyDrive/Colab Notebooks/WS2021/ANN/final'  # main path
+modelname = '1dconv_gru/'  # '1dconv_gru', '2dconv_gru', '2dconv_transformer'
+cwd = '/content/final'  # main path
 # location of raw .wav data
-path_data_train = cwd + '/data/gtzan/'
-path_data_test = cwd + '/data/youtube/'
+path_data_train = cwd + '/GTZAN/'
+path_data_test = cwd + '/test_data/'
 # location to load intermediate weights if training wasn't done until the end
 path_to_continue_training = False
 # location to save weights and loss results from cpc training
@@ -69,7 +69,12 @@ elif modelname == '2dconv_gru/' or '2dconv_transformer/':
 
 # AR params
 c_dim = 512
-if modelname == '1dconv_transformer/' or '2dconv_transformer/':
+
+elif modelname == '1dconv_gru/' or '2dconv_gru/':
+    ar_model = 'GRU'
+    ar_args = {}
+    
+elif modelname == '1dconv_transformer/' or '2dconv_transformer/':
     ar_model = 'transformer'
     ar_args = {
         'num_enc_layers': 2,  # num. transformer encoder blocks
@@ -81,8 +86,6 @@ if modelname == '1dconv_transformer/' or '2dconv_transformer/':
         'maximum_position_encoding': data_generator_arguments['T'],
         'rate': 0.1  # dropout rate
     }
-elif modelname == '1dconv_gru/' or '2dconv_gru/':
-    ar_model = 'GRU'
 
 # training params
 epochs_cpc = 1  #500
