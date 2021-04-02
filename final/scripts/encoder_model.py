@@ -26,6 +26,9 @@ class Conv1DEncoder(tf.keras.layers.Layer):
             self.enc_layers.append(tf.keras.layers.Activation(activation))
         self.enc_layers.append(tf.keras.layers.Flatten())
         self.enc_layers.append(tf.keras.layers.Dropout(0.1))
+        self.enc_layers.append(tf.keras.layers.Dense(512))
+        self.enc_layers.append(tf.keras.layers.Activation(activation))
+        self.enc_layers.append(tf.keras.layers.Dropout(0.1))
         self.enc_layers.append(tf.keras.layers.Dense(z_dim))
         self.enc_layers.append(tf.keras.layers.Activation(activation))
 

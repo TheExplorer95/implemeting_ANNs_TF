@@ -132,7 +132,7 @@ elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
         "stride_sizes": [1, 2, 1, 2, 2, 2],
         "kernel_sizes": [5, 3, 5, 3, 3, 3],
         "n_filters": [128, 128, 256, 256, 512, 512],
-        "dense_units": [256],
+        "dense_units": [512],
         "conv_fct": tf.nn.leaky_relu,
         "dense_act": tf.nn.leaky_relu,
         "kernel_reg": True,

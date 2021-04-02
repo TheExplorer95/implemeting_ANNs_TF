@@ -101,7 +101,7 @@ def train_cpc(
 
         # fancy printing
         print(f'[Epoch {e}] - dT: {elapsed_time:0.2f}s - loss: {train_losses[-1]:0.6f}')
-        if e % print_interval == 0 and not e == 0:
+        if e % print_interval == 0:
             print(f'\n[INFO] - Total time elapsed: {np.sum(times)/60:0.2f} min. Total time remaining: {(np.sum(times)/(e+1))*(epochs-e-1)/60: 0.2f} min.\n')
         elif e % checkpoint_interval:
             # save the weights every checkpoint_interval
