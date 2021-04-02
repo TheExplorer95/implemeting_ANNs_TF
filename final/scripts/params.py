@@ -25,7 +25,7 @@ mode = "colab"  # 'local'
 if mode == "local":
     project_path = os.path.dirname(os.getcwd())  # path to the project folder
 else:  # colab
-    project_path = "/content/final"
+    project_path = "/content/final/"
 # location of raw audio to train cpc
 path_data_cpc = os.path.join(project_path, "data/")
 # location of raw audio to generate embeddings
@@ -88,7 +88,7 @@ z_dim = 256
 # 1dconv encoder params (raw audio data)
 if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
     enc_model = "1d_conv"
-    path_data_cpc = os.path.join(path_data_cpc, "GTZAN")
+    path_data_cpc = os.path.join(path_data_cpc, "fma")
     encoder_args = {
         "z_dim": z_dim,
         "stride_sizes": [5, 4, 2, 2, 2],
@@ -109,7 +109,7 @@ if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
 # 2dconv encoder params (mel spectogram data)
 elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
     enc_model = "2d_conv"
-    path_data_cpc = os.path.join(path_data_cpc, "GTZAN_mel_specs")
+    path_data_cpc = os.path.join(path_data_cpc, "fma_mel_specs")
     encoder_args = {
         "z_dim": z_dim,
         "stride_sizes": [1, 2, 1, 2, 2, 2],
