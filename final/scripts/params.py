@@ -70,7 +70,7 @@ elif modelname == '2dconv_gru/' or '2dconv_transformer/':
 # AR params
 c_dim = 512
 
-elif modelname == '1dconv_gru/' or '2dconv_gru/':
+if modelname == '1dconv_gru/' or '2dconv_gru/':
     ar_model = 'GRU'
     ar_args = {}
     
