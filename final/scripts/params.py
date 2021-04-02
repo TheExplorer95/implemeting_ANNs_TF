@@ -26,11 +26,7 @@ if mode == "local":
     project_path = os.path.dirname(os.getcwd())  # path to the project folder
 else:  # colab
     project_path = "/content/final/"
-# location of raw audio to train cpc
-path_data_cpc = os.path.join(project_path, "data/")
-# location of raw audio to generate embeddings
-path_data_train = os.path.join(project_path, "data/GTZAN/")
-path_data_test = os.path.join(project_path, "data/test_data/")
+
 # location to load intermediate weights if training wasn't done until the end
 path_to_continue_training = False
 
@@ -78,9 +74,8 @@ learning_rate_class = 1e-3  # for classifier
 batch_size_classifier = 32
 
 # -------------- classifier data params --------------------------
-num_em_samples_per_data = (
-    1  # 10  # How often to sample from a single data to get different parts
-)
+# How often to sample from a single data to get different parts
+num_em_samples_per_data = 1  # 10 
 
 # -------------- encoder params -----------------------------------
 z_dim = 256
@@ -88,7 +83,11 @@ z_dim = 256
 # 1dconv encoder params (raw audio data)
 if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
     enc_model = "1d_conv"
-    path_data_cpc = os.path.join(path_data_cpc, "fma")
+    # location of raw audio to train cpc
+    path_data_cpc = os.path.join(project_path, "data/fma")
+    # location of raw audio to generate embeddings
+    path_data_train = os.path.join(project_path, "data/GTZAN/")
+    path_data_test = os.path.join(project_path, "data/test_data/")
     encoder_args = {
         "z_dim": z_dim,
         "stride_sizes": [5, 4, 2, 2, 2],
@@ -109,7 +108,11 @@ if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
 # 2dconv encoder params (mel spectogram data)
 elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
     enc_model = "2d_conv"
-    path_data_cpc = os.path.join(path_data_cpc, "fma_mel_specs")
+    # location of raw audio to train cpc
+    path_data_cpc = os.path.join(project_path, "data/fma_mel_specs/")
+    # location of raw audio to generate embeddings
+    path_data_train = os.path.join(project_path, "data/GTZAN_mel_specs/")
+    path_data_test = os.path.join(project_path, "data/test_data_mel_specs/")
     encoder_args = {
         "z_dim": z_dim,
         "stride_sizes": [1, 2, 1, 2, 2, 2],
