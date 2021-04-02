@@ -184,7 +184,6 @@ generate_embeddings(
 generate_embeddings(
     cpc, num_em_samples_per_test_data, path_data_test, path_save_embeddings_test
 )
-breakpoint()
 # -------TSNE plotting of the train and test embeddings---------------------
 # load the data
 embeddings_train = load_embeddings(path_load_embeddings_train)

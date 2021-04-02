@@ -250,6 +250,3 @@ def create_cpc_ds(enc_model=enc_model):
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
     return train_ds
-
-
-# TODO: Janosch, add data_gen for spectogram

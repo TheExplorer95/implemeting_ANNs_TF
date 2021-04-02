@@ -6,7 +6,6 @@ from training import train_cpc
 # Generate a dataset
 train_ds_cpc = create_cpc_ds()
 
-# Define 3 design components
 # Model
 cpc = CPC(
     data_generator_arguments["T"],
@@ -21,16 +20,20 @@ cpc = CPC(
     ar_args,
     mixed_precision,
 )
+
+# print summary
 for i in train_ds_cpc.take(1):
     cpc(i, training=False)
 cpc.summary()
+
 # load trained model
 if path_to_continue_training:
     cpc.load_weights(path_to_continue_training)
 
-# Loss
+# Loss and metric
 loss = InfoNCE()
 train_loss_metric_cpc = tf.keras.metrics.Mean("train_loss_CPC")
+
 # Optimizer
 adam = tf.keras.optimizers.Adam(learning_rate)
 
