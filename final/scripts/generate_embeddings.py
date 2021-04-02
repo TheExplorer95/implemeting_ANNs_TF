@@ -18,7 +18,7 @@ def create_classifier_dataset(embedding_path):
 
     classes = ["blues", "reggae", "metal", "rock", "pop", "classical", "country", "disco", "jazz", "hiphop"]
 
-    em_onehot_labels = [tf.eye(len(classes))[l] for l in [[i for i, label in enumerate(classes) if label in p][0] for p in em_filepaths]]
+    em_onehot_labels = [tf.reshape(tf.eye(len(classes))[l], (1, len(classes))) for l in [[i for i, label in enumerate(classes) if label in p][0] for p in em_filepaths]]
 
     ds = tf.data.Dataset.from_tensor_slices((embedding_data, em_onehot_labels))
 
@@ -49,7 +49,7 @@ def generate_embeddings(model, num_em_samples_per_data, folder_path, save_to, ma
             audio = tf.reshape(audio, (1,segments, segment_length, 1))
 
             embedding = model.get_embedding(audio)
-            embedding = tf.squeeze(embedding, axis= None)
+            embedding = tf.reshape(embedding, (1, c_dim))
             save_to_ = save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
             np.save(save_to_, embedding.numpy())
 
