@@ -83,7 +83,7 @@ class Conv2DEncoder(tf.keras.layers.Layer):
                     kernel_regularizer=regularizer(),
                 )
             )
-            self.enc_layers.append(tf.keras.layers.SpatialDropout2D(0.1))
+            self.enc_layers.append(tf.keras.layers.BatchNormalization())
             self.enc_layers.append(tf.keras.layers.Activation(conv_fct))
 
         self.enc_layers.append(tf.keras.layers.GlobalAveragePooling2D())
