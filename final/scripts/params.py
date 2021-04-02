@@ -83,7 +83,7 @@ elif modelname == '1dconv_transformer/' or '2dconv_transformer/':
         'dff': 100,  # num. units for 1st ffn within encoder block
         'dense_units': [100, c_dim],  # num. units for additional ffn
         'activation': tf.nn.leaky_relu,  # activation for additional ffn
-        'maximum_position_encoding': data_generator_arguments['T'],
+        'maximum_position_encoding': data_generator_arguments['T'] + data_generator_arguments["k"],
         'rate': 0.1  # dropout rate
     }
 
