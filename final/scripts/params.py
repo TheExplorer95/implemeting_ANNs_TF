@@ -18,7 +18,7 @@ path_to_continue_training = False
 # location to save weights and loss results from cpc training
 path_save_cpc = cwd + '/results/cpc/' + modelname + 'weights.h5'
 # location to load saved cpc model weights
-path_load_model = cwd + 'results/cpc/' + modelname + 'weights.h5'
+path_load_model = cwd + '/results/cpc/' + modelname + 'weights.h5'
 # location to save generated embeddings using trained cpc
 path_save_embeddings_train = cwd + '/results/embeddings/' + modelname + 'train/'
 path_save_embeddings_test = cwd + '/results/embeddings/' + modelname + 'test/'
