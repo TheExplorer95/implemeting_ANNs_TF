@@ -19,7 +19,7 @@ else:
 
 # ----------- setting Path variables-----------------------------
 # data path
-modelname = '1dconv_gru/'  # '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
+modelname = '2dconv_gru/'  # '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 project_path = os.path.dirname(os.getcwd())  # path to the project folder
 # location of raw .wav or .npy mel_spectra
 path_data_train = os.path.join(project_path, 'data/')
@@ -46,7 +46,7 @@ path_save_classifier_plots = os.path.join(project_path, 'results/classifier/', m
 check_dirs([path_save_embeddings_train, path_save_embeddings_test, path_save_classifier_plots, path_save_cpc])
 
 # ------------- training params ---------------------------------
-epochs_cpc = 100  #500
+epochs_cpc = 1  #500
 steps_per_epoch_cpc = 100
 epochs_class = 1  #1000
 learning_rate = 2e-5  # for cpc

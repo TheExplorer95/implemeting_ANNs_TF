@@ -37,50 +37,89 @@ def plot_tsne(data, labels, save_path, title, fn='tsne_plot.svg'):
 
 ### create embeddings (requires its own main script where all trained models are used to get embeddings)
 def generate_embeddings(model, num_em_samples_per_data, folder_path, save_to, max_duration=30):
-    original_sr = data_generator_arguments['original_sr']
-    desired_sr = data_generator_arguments['desired_sr']
-    duration = data_generator_arguments['full_duration']
-    segments = data_generator_arguments['T'] + data_generator_arguments['k']
-    segment_length = int(duration*desired_sr/segments)
+    if enc_model == '1d_conv':
+        original_sr = data_generator_arguments['original_sr']
+        desired_sr = data_generator_arguments['desired_sr']
+        duration = data_generator_arguments['full_duration']
+        segments = data_generator_arguments['T'] + data_generator_arguments['k']
+        segment_length = int(duration*desired_sr/segments)
 
-    folder = os.listdir(folder_path)
-    filepaths = [os.path.join(folder_path, f) for f in folder]
-    for i in range(num_em_samples_per_data):
+        folder = os.listdir(folder_path)
+        filepaths = [os.path.join(folder_path, f) for f in folder]
+        for i in range(num_em_samples_per_data):
 
-        for fpath in filepaths:
-            audio_binary = tf.io.read_file(fpath)
-            audio, sr = tf.audio.decode_wav(audio_binary, desired_channels = 1, desired_samples = max_duration * original_sr)
+            for fpath in filepaths:
+                audio_binary = tf.io.read_file(fpath)
+                audio, sr = tf.audio.decode_wav(audio_binary, desired_channels = 1, desired_samples = max_duration * original_sr)
 
-            if not desired_sr == original_sr:
-                audio = tfio.audio.resample(audio, original_sr, desired_sr)
+                if not desired_sr == original_sr:
+                    audio = tfio.audio.resample(audio, original_sr, desired_sr)
 
-            audio = tf.squeeze(audio, axis=-1)
-            audio = tf.image.random_crop(audio, size = (segments * segment_length,))
-            audio = tf.reshape(audio, (1,segments, segment_length, 1))
+                audio = tf.squeeze(audio, axis=-1)
+                audio = tf.image.random_crop(audio, size = (segments * segment_length,))
+                audio = tf.reshape(audio, (1,segments, segment_length, 1))
 
-            embedding = model.get_embedding(audio)
-            embedding = tf.reshape(embedding, (1, c_dim))
-            save_to_ = save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
-            np.save(save_to_, embedding.numpy())
+                embedding = model.get_embedding(audio)
+                embedding = tf.reshape(embedding, (1, c_dim))
+                save_to_ = save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
+                np.save(save_to_, embedding.numpy())
 
+    elif enc_model == '2d_conv':
+        # output dim (1, 516) are save npy arrays
+        folder = os.listdir(folder_path)
+        filepaths = [os.path.join(folder_path, f) for f in folder]
+
+        segments = data_generator_arguments['T'] + data_generator_arguments['k']
+        sample = np.load(fpath)
+        n_mels = sample.shape[0]
+        segment_length = n_mels
+
+        for i in range(num_em_samples_per_data):
+
+            for fpath in filepaths:
+                mel_spec = np.load(fpath)
+                n_mels = mel_spec.shape[0]
+                mel_spec = tf.image.random_crop(mel_spec, size=(n_mels, segments*segment_length))
 
 # Load the trained model
 # init
 cpc = CPC(data_generator_arguments["T"], data_generator_arguments["k"], data_generator_arguments["N"],
           z_dim, c_dim, enc_model, ar_model, Predict_z, encoder_args, ar_args, mixed_precision)
 
-# compile by feeding dummy data
-T = data_generator_arguments["T"]
-k = data_generator_arguments["k"]
-N = data_generator_arguments["N"]
-sampling_rate = data_generator_arguments["desired_sr"]
-batch_size = N
-duration = data_generator_arguments["full_duration"]
-sr = data_generator_arguments["desired_sr"]
-data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
-dummy_data = tf.random.normal(data_shape, 0, 1)
-cpc(dummy_data)
-cpc.summary()
+if enc_model == '1d_conv':
+    # compile by feeding dummy data
+    T = data_generator_arguments["T"]
+    k = data_generator_arguments["k"]
+    N = data_generator_arguments["N"]
+    sampling_rate = data_generator_arguments["desired_sr"]
+    batch_size = N
+    duration = data_generator_arguments["full_duration"]
+    sr = data_generator_arguments["desired_sr"]
+    data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
+    dummy_data = tf.random.normal(data_shape, 0, 1)
+    cpc(dummy_data)
+    cpc.summary()
+
+elif enc_model == '2d_conv':
+    # compile by feeding dummy data
+    T = data_generator_arguments["T"]
+    k = data_generator_arguments["k"]
+    N = data_generator_arguments["N"]
+    batch_size = data_generator_arguments["batch_size"]
+    sample_file_path = os.path.join(data_generator_arguments["data_path"],
+                                    os.listdir(data_generator_arguments["data_path"])[0])
+
+    sample = np.load(sample_file_path)
+    n_mels = sample.shape[0]
+    window_size = n_mels  # assumes square input
+
+    # output shape of generator given the arguments
+    data_shape = (batch_size, T+k*N, n_mels, window_size, 1)
+
+    dummy_data = tf.random.normal(data_shape, 0, 1)
+    cpc(dummy_data)
+    cpc.summary()
+
 
 # load trained model
 cpc.load_weights(path_load_model)
