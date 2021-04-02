@@ -41,4 +41,55 @@ class Conv1DEncoder(tf.keras.layers.Layer):
         return x
 
 
-# TODO: Janosch, add melspectogram encoder
+class Conv2DEncoder(tf.keras.layers.Layer):
+    '''
+    g_enc: strided 2d convolution
+    '''
+
+    def __init__(self, z_dim, stride_sizes, kernel_sizes, n_filters,
+                 dense_units, conv_fct, dense_act, kernel_reg):
+        super(Conv2DEncoder, self).__init__()
+
+        s = stride_sizes
+        k = kernel_sizes
+        f = n_filters
+        d = dense_units
+
+        self.z_dim = z_dim
+        if kernel_reg:
+            regularizer = tf.keras.regularizers.l2
+        else:
+            regularizer = None
+
+        # input dim: [batch, T+K*N, d, 1]
+        self.enc_layers = []
+
+        for l in range(len(s)):
+            self.enc_layers.append(tf.keras.layers.Conv2D(filters=f[l],
+                                                          kernel_size=k[l],
+                                                          strides=s[l],
+                                                          padding="same",
+                                                          kernel_regularizer=regularizer()))
+            self.enc_layers.append(tf.keras.layers.SpatialDropout2D(0.1))
+            self.enc_layers.append(tf.keras.layers.Activation(conv_fct))
+
+        self.enc_layers.append(tf.keras.layers.GlobalAveragePooling2D())
+
+        for l in range(len(d)):
+            self.enc_layers.append(tf.keras.layers.Dense(units=d[l],
+                                                         kernel_regularizer=regularizer()))
+            self.enc_layers.append(tf.keras.layers.Activation(dense_act))
+            self.enc_layers.append(tf.keras.layers.Dropout(0.1))
+
+        self.enc_layers.append(tf.keras.layers.Dense(self.z_dim,
+                                                     kernel_regularizer=regularizer()))
+        self.enc_layers.append(tf.keras.layers.Activation(dense_act))
+
+    def call(self, x, training):
+        for l in self.enc_layers:
+            try:  # batch normalization
+                x = l(x, training)
+            except Exception:
+                x = l(x)
+
+        return x

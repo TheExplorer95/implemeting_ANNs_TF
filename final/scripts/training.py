@@ -1,9 +1,10 @@
 import numpy as np
 import tensorflow as tf
+import os
 
 @tf.function
 def train_step(model, ds, loss_function, optimizer,
-               steps_per_epoch, train_loss_metric=None, mixed_precision=False):
+               steps_per_epoch, train_loss_metric, mixed_precision=False):
     for batch in ds.take(steps_per_epoch):
 
         with tf.GradientTape() as tape:
@@ -26,7 +27,7 @@ def train_step(model, ds, loss_function, optimizer,
 
 
 # formerly main eval train with mode (now we only train CPC with a custom train function and the classifier with model.fit()
-def train_cpc(cpc_model, train_ds, loss_function, optimizer, epochs, steps_per_epoch, mixed_precision, save_to):
+def train_cpc(cpc_model, train_ds, loss_function, optimizer, epochs, steps_per_epoch, mixed_precision, save_path):
     train_losses = []
     train_loss_metric = tf.keras.metrics.Mean()
     for e in range(epochs):
@@ -38,10 +39,11 @@ def train_cpc(cpc_model, train_ds, loss_function, optimizer, epochs, steps_per_e
 
         train_loss_metric.reset_states()
 
-
     # save model parameters to .h5 file. Can afterwards be loaded with cpc.load_weights(load_from)
-    cpc_model.save_weights(save_to, overwrite=False)
+    model_fn = 'weights.h5'
+    cpc_model.save_weights(os.path.join(save_path, model_fn), overwrite=False)
 
     # save loss array for later visualization
     losses_array = np.array(train_losses)
-    np.save(save_to.replace(".h5", ".npy"), losses_array)
+    loss_fn = 'loss_data.npy'
+    np.save(os.path.join(save_path, loss_fn), losses_array)

@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from autoregressive_model import GRU_AR, Transformer
-from encoder_model import Conv1DEncoder
+from encoder_model import Conv1DEncoder, Conv2DEncoder
 
 
 class Predict_z(tf.keras.layers.Layer):
@@ -85,8 +85,7 @@ class CPC(tf.keras.models.Model):
         if encoder == '1d_conv':
             self.g_enc = Conv1DEncoder(**encoder_args)
         elif encoder == '2d_conv':
-            pass
-        # TODO: Janosch, get spectogram model from encoder_model.py
+            self.g_enc = Conv2DEncoder(**encoder_args)
 
         # autoregressive model
         if autoregressive == 'GRU':
