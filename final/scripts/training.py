@@ -73,6 +73,8 @@ def train_cpc(
     steps_per_epoch,
     mixed_precision,
     save_path,
+    print_interval=10,
+    checkpoint_interval=100
 ):
     timer = Timer()
     times = []
@@ -88,9 +90,7 @@ def train_cpc(
             optimizer,
             steps_per_epoch,
             train_loss_metric,
-            mixed_precision,
-            checkpoint_interval=100, 
-            print_interval=10
+            mixed_precision
         )
 
         # evaluate metrics
