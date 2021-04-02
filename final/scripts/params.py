@@ -36,7 +36,7 @@ cmd_args = get_command_line_args()
 modelname = cmd_args['model_name']  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 mode = "local"  # one of 'colab', 'local'
 if mode == "local":
-    project_path = os.path.dirname(os.getcwd())  # path to the project folder
+    project_path = os.getcwd()  # path to the project folder
 else:  # colab
     project_path = "/content/final/"
 
