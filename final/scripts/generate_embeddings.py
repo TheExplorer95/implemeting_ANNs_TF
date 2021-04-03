@@ -82,7 +82,6 @@ def generate_embeddings(
         counter = 0
         for fpath in filepaths:
             for i in range(num_em_samples_per_data):
-
                 # load the file
                 mel_spec = tf.squeeze(preprocess_mel_spec(np.load(fpath)))
                 # get random window as input for the encoder
@@ -107,10 +106,7 @@ def generate_embeddings(
                     embedding = model.get_embedding(mel_spec)
 
                 if tf.reduce_any(tf.math.is_nan(embedding)):
-                    nan_bool = True
-                    continue
-                else:
-                    nan_bool = False
+                    print(f'[ERROR] - Can not extract embedding from mel_spec {counter}')
 
                 save_to_ = save_to + str(i) + os.path.basename(fpath)
                 np.save(save_to_, embedding.numpy())

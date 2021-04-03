@@ -21,7 +21,7 @@ modelname = cmd_args["model_name"]
 mode = "local"  # one of 'colab', 'local'
 
 if mode == "local":
-    project_path = os.path.dirname(os.getcwd())  # path to the project folder
+    project_path = os.getcwd()  # path to the project folder
     set_memory_growth_tf = True
 else:  # colab
     project_path = "/content/final/"
