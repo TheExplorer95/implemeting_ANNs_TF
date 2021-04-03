@@ -82,8 +82,11 @@ def generate_embeddings(
                 audio = tf.squeeze(audio, axis=-1)
                 audio = tf.image.random_crop(audio, size=(segments * segment_length,))
                 audio = tf.reshape(audio, (1, segments, segment_length, 1))
+                if modelname.split("_")[-1] == "transformer/":
+                    embedding = model.get_embedding(audio[:,:data_generator_arguments["T"],:,:])
+                else:
+                    embedding = model.get_embedding(audio)
 
-                embedding = model.get_embedding(audio)
                 save_to_ = (
                     save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
                 )
@@ -110,7 +113,11 @@ def generate_embeddings(
                     mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)    # add batch and channel dim
 
                     # get and save the embedding
-                    embedding = model.get_embedding(mel_spec)
+                    if modelname.split("_")[-1] == "transformer/":
+                        embedding = model.get_embedding(mel_spec[:,:data_generator_arguments["T"],:,:,:])
+                    else:
+                        embedding = model.get_embedding(mel_spec)
+
                     if tf.reduce_any(tf.math.is_nan(embedding)):
                         nan_bool = True
                         continue
