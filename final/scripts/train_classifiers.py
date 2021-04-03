@@ -4,11 +4,12 @@ import seaborn as sns
 import tensorflow as tf
 import os
 
-from sklearn.manifold import TSNE
-
 from params import *
 from classifier_model import get_classifier
+from train import configure_gpu_options
 
+if set_memory_growth_tf:
+    configure_gpu_options()
 
 ### from a folder with embedding npy files, create a tf dataset with labels
 def create_classifier_dataset(embedding_path):

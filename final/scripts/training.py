@@ -3,6 +3,16 @@ import tensorflow as tf
 import os
 import time
 
+from tensorflow.compat.v1.keras.backend import set_session
+from tensorflow.compat.v1 import ConfigProto, Session
+
+
+def configure_gpu_options():
+    config = ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = Session(config=config)
+    set_session(sess)
+
 
 class Timer:
     # A small class for making timings.
@@ -103,9 +113,9 @@ def train_cpc(
         print(f'[Epoch {e}] - dT: {elapsed_time:0.2f}s - loss: {train_losses[-1]:0.6f}')
         if e % print_interval == 0:
             print(f'\n[INFO] - Total time elapsed: {np.sum(times)/60:0.2f} min. Total time remaining: {(np.sum(times)/(e+1))*(epochs-e-1)/60: 0.2f} min.\n')
-        elif e % checkpoint_interval:
+        elif e % checkpoint_interval == 0:
             # save the weights every checkpoint_interval
-            model_fn = 'checkpoint_weights.h5'
+            model_fn = f'checkpoint_episode{e}_weights.h5'
             cpc_model.save_weights(os.path.join(save_path, model_fn), overwrite=True)
 
     # save model parameters to .h5 file. Can afterwards be loaded with cpc.load_weights(load_from)

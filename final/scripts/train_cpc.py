@@ -1,7 +1,10 @@
 from params import *
 from preprocess_data import create_cpc_ds
 from cpc_model import Predict_z, CPC, InfoNCE
-from training import train_cpc
+from training import train_cpc, configure_gpu_options
+
+if set_memory_growth_tf:
+    configure_gpu_options()
 
 # Generate a dataset
 train_ds_cpc = create_cpc_ds()
