@@ -66,17 +66,17 @@ def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
         y=tsne_data[:, 1],
         hue=labels,
         palette=[
-        "purple",
-        "lightgreen",
-        "red",
-        "orange",
-        "brown",
-        "blue",
-        "dodgerblue",
-        "green",
-        "darkcyan",
-        "black",
-    ],
+            "purple",
+            "lightgreen",
+            "red",
+            "orange",
+            "brown",
+            "blue",
+            "dodgerblue",
+            "green",
+            "darkcyan",
+            "black",
+        ],
         legend="full",
     )
 
@@ -87,14 +87,16 @@ def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
     plt.savefig(os.path.join(save_path, fn), bbox_inches="tight")
 
 
-def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_path, classes):
+def plot_tsne_per_genre(
+    data_train, data_test, labels_train, labels_test, save_path, classes
+):
     # get and fit data
     data = np.concatenate((data_train, data_test))  # (total_num_embeddings, c_dim)
     tsne_data = TSNE(n_components=2).fit_transform(data)
-    xmin = np.min(tsne_data[:,0])
-    xmax = np.max(tsne_data[:,0])
+    xmin = np.min(tsne_data[:, 0])
+    xmax = np.max(tsne_data[:, 0])
     ymin = np.min(tsne_data[:, 1])
-    ymax = np.max(tsne_data[:,1])
+    ymax = np.max(tsne_data[:, 1])
     eps = (ymax - ymin) / 10  # white boundary
 
     for genre in classes:
@@ -102,8 +104,8 @@ def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_p
         logic_genre_train = labels_train == genre
         logic_genre_test = labels_test == genre
         # take correct points
-        tsne_data_train = tsne_data[:labels_train.shape[0]]
-        tsne_data_test = tsne_data[labels_train.shape[0]:]
+        tsne_data_train = tsne_data[: labels_train.shape[0]]
+        tsne_data_test = tsne_data[labels_train.shape[0] :]
         print(tsne_data_train.shape)
         print(tsne_data_test.shape)
         selected_train = tsne_data_train[logic_genre_train]
@@ -118,16 +120,13 @@ def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_p
 
         # create figure
         plt.figure(figsize=(10, 10))
-        plt.xlim([xmin-eps, xmax+eps])
-        plt.ylim([ymin-eps, ymax+eps])
+        plt.xlim([xmin - eps, xmax + eps])
+        plt.ylim([ymin - eps, ymax + eps])
         tsne_plot = sns.scatterplot(
             x=selected_ems[:, 0],
             y=selected_ems[:, 1],
             hue=labels_joint,
-            palette=[
-        'red',
-        "black"
-    ],
+            palette=["red", "black"],
             legend="full",
         )
 
@@ -135,4 +134,6 @@ def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_p
         tsne_plot.set_title(
             f"TSNE plot of the {genre} Embeddings", fontdict={"fontsize": 25}
         )
-        plt.savefig(os.path.join(save_path, f"tsne_plot_{genre}.svg"), bbox_inches="tight")
+        plt.savefig(
+            os.path.join(save_path, f"tsne_plot_{genre}.svg"), bbox_inches="tight"
+        )

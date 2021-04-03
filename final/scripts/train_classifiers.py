@@ -15,14 +15,21 @@ if set_memory_growth_tf:
 
 # -------------- Training ----------------------------------------------
 # 1. train the autoencoder for dimension reduction
-em_ds = create_autoencoder_dataset([path_load_embeddings_train, path_load_embeddings_test])  # dataset
+em_ds = create_autoencoder_dataset(
+    [path_load_embeddings_train, path_load_embeddings_test]
+)  # dataset
 reducer = DimensionalityReduction(c_dim, r_dim)  # model
 optim_ae = tf.keras.optimizers.Adam(learning_rate_class)  # optimizer
 mse = tf.keras.losses.MSE()  # loss
 reducer.compile(optimizer=optim_ae, loss=mse)  # compile
-history_dm = reducer.fit(em_ds, epochs=epochs_class, batch_size=batch_size_classifier)  # train
-np.save(os.path.join(path_save_classifier_plots, 'autoencoder_results.npy'), history_dm.history)
-print('[INFO] - Autoencoder is trained')
+history_dm = reducer.fit(
+    em_ds, epochs=epochs_class, batch_size=batch_size_classifier
+)  # train
+np.save(
+    os.path.join(path_save_classifier_plots, "autoencoder_results.npy"),
+    history_dm.history,
+)
+print("[INFO] - Autoencoder is trained")
 
 # 2. generate dataset from saved embeddings
 print("[INFO] - Creating the dataset for the train and test cpc-embeddings.")

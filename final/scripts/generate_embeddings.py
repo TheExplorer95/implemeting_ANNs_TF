@@ -37,7 +37,7 @@ def generate_embeddings(
         total_embeddings = n_files * num_em_samples_per_data
 
         counter = 0
-        
+
         for fpath in filepaths:
             audio_binary = tf.io.read_file(fpath)
             audio, sr = tf.audio.decode_wav(
@@ -65,7 +65,9 @@ def generate_embeddings(
                 np.save(save_to_, embedding.numpy())
                 counter += 1
                 if counter % 100 == 0:
-                    print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
+                    print(
+                        f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}"
+                    )
 
     elif enc_model == "2d_conv":
         # output dim (1, 516) are save npy arrays
@@ -95,9 +97,7 @@ def generate_embeddings(
                         tf.split(mel_spec, num_or_size_splits=segments, axis=1)
                     )
                     # add batch and channel dim
-                    mel_spec = tf.expand_dims(
-                        tf.expand_dims(mel_spec, axis=-1), axis=0
-                    )
+                    mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)
 
                     # get and save the embedding
                     if modelname.split("_")[-1] == "transformer/":
@@ -118,7 +118,9 @@ def generate_embeddings(
 
                     counter += 1
                     if counter % 100 == 0:
-                        print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
+                        print(
+                            f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}"
+                        )
 
 
 # Load the trained model
@@ -224,8 +226,8 @@ labels_test = np.array(
 # do the tsne
 # train data
 plot_tsne(
-    embeddings_train[:embeddings_test.shape[0]],
-    labels_train[:embeddings_test.shape[0]],
+    embeddings_train[: embeddings_test.shape[0]],
+    labels_train[: embeddings_test.shape[0]],
     path_save_classifier_plots,
     "training",
     "tsne_trainEmbeddings.svg",
@@ -241,9 +243,11 @@ plot_tsne(
 )
 
 # each genre with merged test and train data
-plot_tsne_per_genre(embeddings_train[:embeddings_test.shape[0]],
-                    embeddings_test,
-                    labels_train[:embeddings_test.shape[0]],
-                    labels_test,
-                    path_save_classifier_plots,
-                    classes)
+plot_tsne_per_genre(
+    embeddings_train[: embeddings_test.shape[0]],
+    embeddings_test,
+    labels_train[: embeddings_test.shape[0]],
+    labels_test,
+    path_save_classifier_plots,
+    classes,
+)
