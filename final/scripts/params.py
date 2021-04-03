@@ -1,42 +1,27 @@
+# handling comand line arguments
 import argparse
-import tensorflow as tf
+
+# handling logging level
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
+import tensorflow as tf
+import logging
+logging.getLogger('tensorflow').setLevel(logging.WARNING)
+
+# general imports
 from datetime import datetime
-
-
-def get_command_line_args():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-m", "--model_name",
-                    type=str,
-                    default='1dconv_gru',
-                    help='Currently implemented: 1dconv_gru/, 1dconv_gru/,\
-                    2dconv_gru/, 2dconv_transformer/')
-
-    return vars(ap.parse_args())
-
-
-def check_dirs(path_list):
-    for path in path_list:
-        if not os.path.isdir(path):
-            os.makedirs(path)
-
+from utils import set_mixed_precission
 
 # use mixed precision allows for bigger models
 mixed_precision = False
-
-if mixed_precision:
-    tf.keras.mixed_precision.set_global_policy(
-        "mixed_float16"
-    )  # use mixed precision training (on V100 supposedly a 3x performance boost + double memory)
-else:
-    tf.keras.mixed_precision.set_global_policy("float32")
+set_mixed_precission(mixed_precision)
 
 # ----------- setting Path variables-----------------------------
 cmd_args = get_command_line_args()
 modelname = cmd_args['model_name']  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 mode = "local"  # one of 'colab', 'local'
 if mode == "local":
-    project_path = os.getcwd()  # path to the project folder
+    project_path = os.path.dirname(os.getcwd())  # path to the project folder
     set_memory_growth_tf = True
 else:  # colab
     project_path = "/content/final/"

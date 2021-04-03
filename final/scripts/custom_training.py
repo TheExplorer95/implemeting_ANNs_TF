@@ -1,37 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import os
-import time
-
-from tensorflow.compat.v1.keras.backend import set_session
-from tensorflow.compat.v1 import ConfigProto, Session
-
-
-def configure_gpu_options():
-    config = ConfigProto()
-    config.gpu_options.allow_growth = True
-    sess = Session(config=config)
-    set_session(sess)
-
-
-class Timer:
-    # A small class for making timings.
-    def __init__(self):
-        self._start_time = None
-
-    def start(self):
-        # Start a new timer
-        self._start_time = time.perf_counter()
-
-    def stop(self):
-        # Stop the timer, and report the elapsed time
-        if self._start_time is None:
-            print("Timer is not running. Use .start() to start it")
-            return 0
-
-        elapsed_time = time.perf_counter() - self._start_time
-        self._start_time = None
-        return elapsed_time
+from utils import Timer
 
 
 @tf.function
@@ -90,7 +60,8 @@ def train_cpc(
     times = []
     train_losses = []
     train_loss_metric = tf.keras.metrics.Mean()
-    print(f"[Info] - Started training the model.")
+
+    print(f"\n[Info] - Started training the model.")
     for e in range(epochs):
         timer.start()
         train_step(

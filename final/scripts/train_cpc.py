@@ -1,12 +1,14 @@
 from params import *
+
 from preprocess_data import create_cpc_ds
 from cpc_model import Predict_z, CPC, InfoNCE
-from training import train_cpc, configure_gpu_options
-
+from custom_training import train_cpc
+from utils import configure_gpu_options
 if set_memory_growth_tf:
     configure_gpu_options()
 
 # Generate a dataset
+print(f'[INFO] - Loading the dataset {path_data_cpc.split("/")[-2]}')
 train_ds_cpc = create_cpc_ds()
 
 # Model
@@ -27,13 +29,14 @@ cpc = CPC(
 # print summary
 for i in train_ds_cpc.take(1):
     cpc(i, training=False)
+print(f'[INFO] - Created the {cpc.name} model.\n')
 cpc.summary()
 
-# load trained model
+# load trained model when training was stopped
 if path_to_continue_training:
     cpc.load_weights(path_to_continue_training)
 
-# Loss and metric
+# Loss and corresponding metric
 loss = InfoNCE()
 train_loss_metric_cpc = tf.keras.metrics.Mean("train_loss_CPC")
 

@@ -1,13 +1,12 @@
+from params import *
+
 import os
 import numpy as np
 import tensorflow as tf
 import tensorflow_io as tfio
-from sklearn.manifold import TSNE
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-from params import *
 from cpc_model import CPC, Predict_z
+from analysis import plot_tsne
 
 
 def load_embeddings(path):
@@ -19,38 +18,6 @@ def load_embeddings(path):
     return np.concatenate(
         [np.reshape(np.load(x), (1, c_dim)) for x in em_filepaths], axis=0
     )
-
-
-def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
-    # get and fit data
-    tsne_data = TSNE(n_components=2).fit_transform(data)
-
-    # create figure
-    plt.figure(figsize=(10, 10))
-    tsne_plot = sns.scatterplot(
-        x=tsne_data[:, 0],
-        y=tsne_data[:, 1],
-        hue=labels,
-        palette=[
-            "purple",
-            "red",
-            "orange",
-            "brown",
-            "blue",
-            "dodgerblue",
-            "green",
-            "lightgreen",
-            "darkcyan",
-            "black",
-        ],
-        legend="full",
-    )
-
-    tsne_plot.legend(loc="center left", bbox_to_anchor=(1, 0.5), ncol=1)
-    tsne_plot.set_title(
-        f"TSNE plot of the {title} Embeddings", fontdict={"fontsize": 25}
-    )
-    plt.savefig(os.path.join(save_path, fn), bbox_inches="tight")
 
 
 ### create embeddings (requires its own main script where all trained models are used to get embeddings)

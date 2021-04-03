@@ -250,3 +250,42 @@ def create_cpc_ds(enc_model=enc_model):
     train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
 
     return train_ds
+
+
+def create_classifier_dataset(embedding_path):
+    """
+    Works only when the contained string doesn't have multiple class names
+
+    Output: Create a tf dataset with labels
+    """
+    em_files = os.listdir(embedding_path)
+    em_filepaths = [
+        os.path.join(embedding_path, f) for f in em_files
+    ]  # train files was created for training
+
+    embedding_data = [np.reshape(np.load(x), (1, c_dim)) for x in em_filepaths]
+
+    classes = [
+        "blues",
+        "reggae",
+        "metal",
+        "rock",
+        "pop",
+        "classical",
+        "country",
+        "disco",
+        "jazz",
+        "hiphop",
+    ]
+
+    em_onehot_labels = [
+        tf.reshape(tf.eye(len(classes))[l], (1, len(classes)))
+        for l in [
+            [i for i, label in enumerate(classes) if label in p][0]
+            for p in em_filepaths
+        ]
+    ]
+
+    ds = tf.data.Dataset.from_tensor_slices((embedding_data, em_onehot_labels))
+
+    return ds
