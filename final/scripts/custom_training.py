@@ -27,7 +27,7 @@ def train_step(
                 )  # scaled loss for mixed precision training
 
         # backward pass via GradienTape (auto-gradient calc)
-        if not tf.math.is_nan(loss):
+        if not tf.math.is_nan(loss) and tf.math.is_finite(loss):
             gradients = tape.gradient(
                 loss, model.trainable_variables
             )  # get (scaled) gradients
