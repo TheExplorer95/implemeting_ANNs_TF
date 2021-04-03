@@ -45,29 +45,26 @@ def generate_embeddings(
                 desired_channels=1,
                 desired_samples=max_duration * original_sr,
             )
+            if not desired_sr == original_sr:
+                audio = tfio.audio.resample(audio, original_sr, desired_sr)
             for i in range(num_em_samples_per_data):
-                if not desired_sr == original_sr:
-                    audio = tfio.audio.resample(audio, original_sr, desired_sr)
-
-                audio = tf.squeeze(audio, axis=-1)
-                audio = tf.image.random_crop(audio, size=(segments * segment_length,))
-                audio = tf.reshape(audio, (1, segments, segment_length, 1))
+                audio_load = tf.squeeze(audio, axis=-1)
+                audio_load = tf.image.random_crop(audio_load, size=(segments * segment_length,))
+                audio_load = tf.reshape(audio_load, (1, segments, segment_length, 1))
                 if modelname.split("_")[-1] == "transformer/":
                     embedding = model.get_embedding(
-                        audio[:, : data_generator_arguments["T"], :, :]
+                        audio_load[:, : data_generator_arguments["T"], :, :]
                     )
                 else:
-                    embedding = model.get_embedding(audio)
+                    embedding = model.get_embedding(audio_load)
 
                 save_to_ = (
-                    save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
+                    save_to + str(i+30) + os.path.basename(fpath).replace(".wav", ".npy")
                 )
                 np.save(save_to_, embedding.numpy())
                 counter += 1
                 if counter % 100 == 0:
-                    print(
-                        f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}"
-                    )
+                    print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
     elif enc_model == "2d_conv":
         # output dim (1, 516) are save npy arrays
@@ -82,45 +79,40 @@ def generate_embeddings(
         total_embeddings = n_files * num_em_samples_per_data
 
         counter = 0
-        for i in range(num_em_samples_per_data):
-            for fpath in filepaths:
-                nan_bool = None
-                while nan_bool or nan_bool is None:
-                    # load the file
-                    mel_spec = tf.squeeze(preprocess_mel_spec(np.load(fpath)))
-                    # get random window as input for the encoder
-                    mel_spec = tf.image.random_crop(
-                        mel_spec, size=(n_mels, segments * segment_length)
+        for fpath in filepaths:
+            for i in range(num_em_samples_per_data):
+                # load the file
+                mel_spec = tf.squeeze(preprocess_mel_spec(np.load(fpath)))
+                # get random window as input for the encoder
+                mel_spec = tf.image.random_crop(
+                    mel_spec, size=(n_mels, segments * segment_length)
+                )
+                # make slices from entire windown
+                mel_spec = tf.stack(
+                    tf.split(mel_spec, num_or_size_splits=segments, axis=1)
+                )
+                # add batch and channel dim
+                mel_spec = tf.expand_dims(
+                    tf.expand_dims(mel_spec, axis=-1), axis=0
+                )
+
+                # get and save the embedding
+                if modelname.split("_")[-1] == "transformer/":
+                    embedding = model.get_embedding(
+                        mel_spec[:, : data_generator_arguments["T"], :, :, :]
                     )
-                    # make slices from entire windown
-                    mel_spec = tf.stack(
-                        tf.split(mel_spec, num_or_size_splits=segments, axis=1)
-                    )
-                    # add batch and channel dim
-                    mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)
+                else:  # gru
+                    embedding = model.get_embedding(mel_spec)
 
-                    # get and save the embedding
-                    if modelname.split("_")[-1] == "transformer/":
-                        embedding = model.get_embedding(
-                            mel_spec[:, : data_generator_arguments["T"], :, :, :]
-                        )
-                    else:  # gru
-                        embedding = model.get_embedding(mel_spec)
+                if tf.reduce_any(tf.math.is_nan(embedding)):
+                    print(f'[ERROR] - Can not extract embedding from mel_spec {counter}')
 
-                    if tf.reduce_any(tf.math.is_nan(embedding)):
-                        nan_bool = True
-                        continue
-                    else:
-                        nan_bool = False
+                save_to_ = save_to + str(i) + os.path.basename(fpath)
+                np.save(save_to_, embedding.numpy())
 
-                    save_to_ = save_to + str(i) + os.path.basename(fpath)
-                    np.save(save_to_, embedding.numpy())
-
-                    counter += 1
-                    if counter % 100 == 0:
-                        print(
-                            f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}"
-                        )
+                counter += 1
+                if counter % 100 == 0:
+                    print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
 
 # Load the trained model
@@ -226,8 +218,8 @@ labels_test = np.array(
 # do the tsne
 # train data
 plot_tsne(
-    embeddings_train[: embeddings_test.shape[0]],
-    labels_train[: embeddings_test.shape[0]],
+    embeddings_train[:embeddings_test.shape[0]],
+    labels_train[:embeddings_test.shape[0]],
     path_save_classifier_plots,
     "training",
     "tsne_trainEmbeddings.svg",
@@ -243,11 +235,9 @@ plot_tsne(
 )
 
 # each genre with merged test and train data
-plot_tsne_per_genre(
-    embeddings_train[: embeddings_test.shape[0]],
-    embeddings_test,
-    labels_train[: embeddings_test.shape[0]],
-    labels_test,
-    path_save_classifier_plots,
-    classes,
-)
+plot_tsne_per_genre(embeddings_train[:embeddings_test.shape[0]],
+                    embeddings_test,
+                    labels_train[:embeddings_test.shape[0]],
+                    labels_test,
+                    path_save_classifier_plots,
+                    classes)
