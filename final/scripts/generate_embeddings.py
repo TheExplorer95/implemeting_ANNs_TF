@@ -7,6 +7,7 @@ import tensorflow_io as tfio
 
 from cpc_model import CPC, Predict_z
 from analysis import plot_tsne, plot_tsne_per_genre
+from preprocess_data import preprocess_mel_spec
 
 
 def load_embeddings(path):
@@ -84,16 +85,19 @@ def generate_embeddings(
                 nan_bool = None
                 while nan_bool or nan_bool is None:
                     # load the file
-                    mel_spec = np.load(fpath)
+                    mel_spec = tf.squeeze(preprocess_mel_spec(np.load(fpath)))
+                    # get random window as input for the encoder
                     mel_spec = tf.image.random_crop(
                         mel_spec, size=(n_mels, segments * segment_length)
-                    )  # get random window as input for the encoder
+                    )
+                    # make slices from entire windown
                     mel_spec = tf.stack(
                         tf.split(mel_spec, num_or_size_splits=segments, axis=1)
-                    )  # make slices from entire windown
+                    )
+                    # add batch and channel dim
                     mel_spec = tf.expand_dims(
                         tf.expand_dims(mel_spec, axis=-1), axis=0
-                    )  # add batch and channel dim
+                    )
 
                     # get and save the embedding
                     if modelname.split("_")[-1] == "transformer/":
