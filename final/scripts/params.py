@@ -16,12 +16,12 @@ set_mixed_precission(mixed_precision)
 
 # ----------- setting Path variables-----------------------------
 cmd_args = get_command_line_args()
-modelname = cmd_args[
-    "model_name"
-]  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
+# one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
+modelname = cmd_args["model_name"]
 mode = "local"  # one of 'colab', 'local'
+
 if mode == "local":
-    project_path = os.getcwd()  # path to the project folder
+    project_path = os.path.dirname(os.getcwd())  # path to the project folder
     set_memory_growth_tf = True
 else:  # colab
     project_path = "/content/final/"
@@ -122,7 +122,7 @@ elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
         "dense_units": [512],
         "conv_fct": tf.nn.leaky_relu,
         "dense_act": tf.nn.leaky_relu,
-        "kernel_reg": False,
+        "kernel_reg": True,
     }
 
     data_generator_arguments = {
@@ -130,8 +130,8 @@ elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
         "k": 3,  # timestep
         "N": 8,  # timestep
         "batch_size": 8,
-        "data_path": path_data_cpc,
-    }  # str
+        "data_path": path_data_cpc,  # str
+    }
 
 
 # ----------------- AR params --------------------------------
