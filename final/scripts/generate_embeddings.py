@@ -37,15 +37,15 @@ def generate_embeddings(
         total_embeddings = n_files * num_em_samples_per_data
 
         counter = 0
-        for i in range(num_em_samples_per_data):
-            for fpath in filepaths:
-                audio_binary = tf.io.read_file(fpath)
-                audio, sr = tf.audio.decode_wav(
-                    audio_binary,
-                    desired_channels=1,
-                    desired_samples=max_duration * original_sr,
-                )
-
+        
+        for fpath in filepaths:
+            audio_binary = tf.io.read_file(fpath)
+            audio, sr = tf.audio.decode_wav(
+                audio_binary,
+                desired_channels=1,
+                desired_samples=max_duration * original_sr,
+            )
+            for i in range(num_em_samples_per_data):
                 if not desired_sr == original_sr:
                     audio = tfio.audio.resample(audio, original_sr, desired_sr)
 
