@@ -99,11 +99,15 @@ def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_p
 
     for genre in classes:
         # logical array to select correct indices
-        logic_genre_train = labels_train[labels_train == genre]
-        logic_genre_test = labels_test[labels_test == genre]
+        logic_genre_train = labels_train == genre
+        logic_genre_test = labels_test == genre
         # take correct points
-        selected_train = tsne_data[logic_genre_train]
-        selected_test = tsne_data[logic_genre_test]
+        tsne_data_train = tsne_data[:labels_train.shape[0]]
+        tsne_data_test = tsne_data[labels_train.shape[0]:]
+        print(tsne_data_train.shape)
+        print(tsne_data_test.shape)
+        selected_train = tsne_data_train[logic_genre_train]
+        selected_test = tsne_data_test[logic_genre_test]
         selected_ems = np.concatenate((selected_train, selected_test))
         labels_joint = np.concatenate(
             (
@@ -114,10 +118,11 @@ def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_p
 
         # create figure
         plt.figure(figsize=(10, 10))
-        plt.set(xlim=[xmin-eps, xmax+eps], ylim=[ymin-eps, ymax+eps])
+        plt.xlim([xmin-eps, xmax+eps])
+        plt.ylim([ymin-eps, ymax+eps])
         tsne_plot = sns.scatterplot(
-            x=tsne_data[:, 0],
-            y=tsne_data[:, 1],
+            x=selected_ems[:, 0],
+            y=selected_ems[:, 1],
             hue=labels_joint,
             palette=[
         'red',

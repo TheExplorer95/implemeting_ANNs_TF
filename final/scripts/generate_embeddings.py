@@ -14,7 +14,6 @@ def load_embeddings(path):
     em_filepaths = [
         os.path.join(path, f) for f in em_files
     ]  # train files was created for training
-
     return np.concatenate(
         [np.reshape(np.load(x), (1, c_dim)) for x in em_filepaths], axis=0
     )
@@ -64,7 +63,7 @@ def generate_embeddings(
                 )
                 np.save(save_to_, embedding.numpy())
                 counter += 1
-                if coutner % 100 == 0:
+                if counter % 100 == 0:
                     print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
     elif enc_model == "2d_conv":
@@ -114,7 +113,7 @@ def generate_embeddings(
                     np.save(save_to_, embedding.numpy())
 
                     counter += 1
-                    if coutner % 100 == 0:
+                    if counter % 100 == 0:
                         print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
 
@@ -238,9 +237,9 @@ plot_tsne(
 )
 
 # each genre with merged test and train data
-plot_tsne_per_genre(embeddings_train,
+plot_tsne_per_genre(embeddings_train[:embeddings_test.shape[0]],
                     embeddings_test,
-                    labels_train,
+                    labels_train[:embeddings_test.shape[0]],
                     labels_test,
                     path_save_classifier_plots,
                     classes)

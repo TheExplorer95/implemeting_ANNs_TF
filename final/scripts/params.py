@@ -21,7 +21,7 @@ modelname = cmd_args[
 ]  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 mode = "local"  # one of 'colab', 'local'
 if mode == "local":
-    project_path = os.path.dirname(os.getcwd())  # path to the project folder
+    project_path = os.getcwd()  # path to the project folder
     set_memory_growth_tf = True
 else:  # colab
     project_path = "/content/final/"
@@ -76,7 +76,7 @@ batch_size_classifier = 32
 # -------------- classifier data params --------------------------
 # How often to sample from a single data to get different parts
 num_em_samples_per_train_data = 30
-num_em_samples_per_test_data = 3
+num_em_samples_per_test_data = 1
 
 # -------------- encoder params -----------------------------------
 z_dim = 256
