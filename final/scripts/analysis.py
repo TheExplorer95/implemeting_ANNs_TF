@@ -56,7 +56,16 @@ def plot_confusion_matrix(test_ds, model, save_path):
 
 
 def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
-    palettes = [
+    # get and fit data
+    tsne_data = TSNE(n_components=2).fit_transform(data)
+
+    # create figure
+    plt.figure(figsize=(10, 10))
+    tsne_plot = sns.scatterplot(
+        x=tsne_data[:, 0],
+        y=tsne_data[:, 1],
+        hue=labels,
+        palette=[
         "purple",
         "lightgreen",
         "red",
@@ -67,17 +76,7 @@ def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
         "green",
         "darkcyan",
         "black",
-    ]
-    # get and fit data
-    tsne_data = TSNE(n_components=2).fit_transform(data)
-
-    # create figure
-    plt.figure(figsize=(10, 10))
-    tsne_plot = sns.scatterplot(
-        x=tsne_data[:, 0],
-        y=tsne_data[:, 1],
-        hue=labels,
-        palette=palettes[: len(set(labels))],  # 10 for all genres, 2 for train/test
+    ],
         legend="full",
     )
 
@@ -86,3 +85,49 @@ def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
         f"TSNE plot of the {title} Embeddings", fontdict={"fontsize": 25}
     )
     plt.savefig(os.path.join(save_path, fn), bbox_inches="tight")
+
+
+def plot_tsne_per_genre(data_train, data_test, labels_train, labels_test, save_path, classes):
+    # get and fit data
+    data = np.concatenate((data_train, data_test))  # (total_num_embeddings, c_dim)
+    tsne_data = TSNE(n_components=2).fit_transform(data)
+    xmin = np.min(tsne_data[:,0])
+    xmax = np.max(tsne_data[:,0])
+    ymin = np.min(tsne_data[:, 1])
+    ymax = np.max(tsne_data[:,1])
+    eps = (ymax - ymin) / 10  # white boundary
+
+    for genre in classes:
+        # logical array to select correct indices
+        logic_genre_train = labels_train[labels_train == genre]
+        logic_genre_test = labels_test[labels_test == genre]
+        # take correct points
+        selected_train = tsne_data[logic_genre_train]
+        selected_test = tsne_data[logic_genre_test]
+        selected_ems = np.concatenate((selected_train, selected_test))
+        labels_joint = np.concatenate(
+            (
+                np.repeat(["train"], repeats=selected_train.shape[0]),
+                np.repeat(["test"], repeats=selected_test.shape[0]),
+            )
+        )
+
+        # create figure
+        plt.figure(figsize=(10, 10))
+        plt.set(xlim=[xmin-eps, xmax+eps], ylim=[ymin-eps, ymax+eps])
+        tsne_plot = sns.scatterplot(
+            x=tsne_data[:, 0],
+            y=tsne_data[:, 1],
+            hue=labels_joint,
+            palette=[
+        'red',
+        "black"
+    ],
+            legend="full",
+        )
+
+        tsne_plot.legend(loc="center left", bbox_to_anchor=(1, 0.5), ncol=1)
+        tsne_plot.set_title(
+            f"TSNE plot of the {genre} Embeddings", fontdict={"fontsize": 25}
+        )
+        plt.savefig(os.path.join(save_path, f"tsne_plot_{genre}.svg"), bbox_inches="tight")

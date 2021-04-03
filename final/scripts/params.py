@@ -1,6 +1,3 @@
-# handling comand line arguments
-import argparse
-
 # handling logging level
 import os
 
@@ -12,7 +9,7 @@ logging.getLogger("tensorflow").setLevel(logging.WARNING)
 
 # general imports
 from datetime import datetime
-from utils import set_mixed_precission
+from utils import set_mixed_precission, get_command_line_args
 
 # use mixed precision allows for bigger models
 mixed_precision = False

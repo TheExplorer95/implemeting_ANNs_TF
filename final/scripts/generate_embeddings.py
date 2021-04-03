@@ -6,7 +6,7 @@ import tensorflow as tf
 import tensorflow_io as tfio
 
 from cpc_model import CPC, Predict_z
-from analysis import plot_tsne
+from analysis import plot_tsne, plot_tsne_per_genre
 
 
 def load_embeddings(path):
@@ -217,25 +217,8 @@ plot_tsne(
     "tsne_testEmbeddings.svg",
 )
 
+
+
+
 # tsne for each genre with merged data
-for genre in classes:
-    logic_genre_train = labels_train[labels_train == genre]  # logical array
-    logic_genre_test = labels_test[labels_test == genre]
-    selected_train = embeddings_train[
-        logic_genre_train
-    ]  # embeddings with selected genre
-    selected_test = embeddings_test[logic_genre_test]
-    selected_ems = np.concatenate((selected_train, selected_test))
-    labels_joint = np.concatenate(
-        (
-            np.repeat(["train"], repeats=selected_train.shape[0]),
-            np.repeat(["test"], repeats=selected_test.shape[0]),
-        )
-    )
-    plot_tsne(
-        selected_ems,
-        labels_joint,
-        path_save_classifier_plots,
-        genre,
-        "tsne_{}Embeddings.svg".format(genre),
-    )
+plot_tsne_per_genre(embeddings_train, embeddings_test, labels_train, labels_test, path_save_classifier_plots, classes)
