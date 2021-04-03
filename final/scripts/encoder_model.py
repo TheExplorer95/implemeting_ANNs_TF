@@ -92,15 +92,11 @@ class Conv2DEncoder(tf.keras.layers.Layer):
         self.enc_layers.append(tf.keras.layers.GlobalMaxPooling2D())
 
         for l in range(len(d)):
-            self.enc_layers.append(
-                tf.keras.layers.Dense(units=d[l])
-            )
+            self.enc_layers.append(tf.keras.layers.Dense(units=d[l]))
             self.enc_layers.append(tf.keras.layers.Activation(dense_act))
             # self.enc_layers.append(tf.keras.layers.Dropout(0.1))
 
-        self.enc_layers.append(
-            tf.keras.layers.Dense(self.z_dim)
-        )
+        self.enc_layers.append(tf.keras.layers.Dense(self.z_dim))
         self.enc_layers.append(tf.keras.layers.Activation(dense_act))
 
     def call(self, x, training):

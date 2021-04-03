@@ -56,6 +56,18 @@ def plot_confusion_matrix(test_ds, model, save_path):
 
 
 def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
+    palettes = [
+        "purple",
+        "lightgreen",
+        "red",
+        "orange",
+        "brown",
+        "blue",
+        "dodgerblue",
+        "green",
+        "darkcyan",
+        "black",
+    ]
     # get and fit data
     tsne_data = TSNE(n_components=2).fit_transform(data)
 
@@ -65,18 +77,7 @@ def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
         x=tsne_data[:, 0],
         y=tsne_data[:, 1],
         hue=labels,
-        palette=[
-            "purple",
-            "red",
-            "orange",
-            "brown",
-            "blue",
-            "dodgerblue",
-            "green",
-            "lightgreen",
-            "darkcyan",
-            "black",
-        ],
+        palette=palettes[: len(set(labels))],  # 10 for all genres, 2 for train/test
         legend="full",
     )
 

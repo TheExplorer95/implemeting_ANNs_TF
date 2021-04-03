@@ -54,7 +54,7 @@ def train_cpc(
     mixed_precision,
     save_path,
     print_interval=10,
-    checkpoint_interval=100
+    checkpoint_interval=100,
 ):
     timer = Timer()
     times = []
@@ -71,7 +71,7 @@ def train_cpc(
             optimizer,
             steps_per_epoch,
             train_loss_metric,
-            mixed_precision
+            mixed_precision,
         )
 
         # evaluate metrics
@@ -81,12 +81,14 @@ def train_cpc(
         times.append(elapsed_time)
 
         # fancy printing
-        print(f'[Epoch {e}] - dT: {elapsed_time:0.2f}s - loss: {train_losses[-1]:0.6f}')
+        print(f"[Epoch {e}] - dT: {elapsed_time:0.2f}s - loss: {train_losses[-1]:0.6f}")
         if e % print_interval == 0:
-            print(f'\n[INFO] - Total time elapsed: {np.sum(times)/60:0.2f} min. Total time remaining: {(np.sum(times)/(e+1))*(epochs-e-1)/60: 0.2f} min.\n')
+            print(
+                f"\n[INFO] - Total time elapsed: {np.sum(times)/60:0.2f} min. Total time remaining: {(np.sum(times)/(e+1))*(epochs-e-1)/60: 0.2f} min.\n"
+            )
         elif e % checkpoint_interval == 0:
             # save the weights every checkpoint_interval
-            model_fn = f'checkpoint_episode{e}_weights.h5'
+            model_fn = f"checkpoint_episode{e}_weights.h5"
             cpc_model.save_weights(os.path.join(save_path, model_fn), overwrite=True)
 
     # save model parameters to .h5 file. Can afterwards be loaded with cpc.load_weights(load_from)

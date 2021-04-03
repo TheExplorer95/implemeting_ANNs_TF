@@ -38,11 +38,14 @@ def check_dirs(path_list):
 
 def get_command_line_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-m", "--model_name",
-                    type=str,
-                    default='1dconv_gru',
-                    help='Currently implemented: 1dconv_gru/, 1dconv_gru/,\
-                    2dconv_gru/, 2dconv_transformer/')
+    ap.add_argument(
+        "-m",
+        "--model_name",
+        type=str,
+        default="1dconv_gru",
+        help="Currently implemented: 1dconv_gru/, 1dconv_gru/,\
+                    2dconv_gru/, 2dconv_transformer/",
+    )
 
     return vars(ap.parse_args())
 

@@ -50,7 +50,9 @@ def generate_embeddings(
                 audio = tf.image.random_crop(audio, size=(segments * segment_length,))
                 audio = tf.reshape(audio, (1, segments, segment_length, 1))
                 if modelname.split("_")[-1] == "transformer/":
-                    embedding = model.get_embedding(audio[:,:data_generator_arguments["T"],:,:])
+                    embedding = model.get_embedding(
+                        audio[:, : data_generator_arguments["T"], :, :]
+                    )
                 else:
                     embedding = model.get_embedding(audio)
 
@@ -64,7 +66,7 @@ def generate_embeddings(
         folder = os.listdir(folder_path)
         filepaths = [os.path.join(folder_path, f) for f in folder]
 
-        segments = data_generator_arguments['T'] + data_generator_arguments['k']
+        segments = data_generator_arguments["T"] + data_generator_arguments["k"]
         sample = np.load(filepaths[0])
         n_mels = sample.shape[0]
         segment_length = n_mels
@@ -75,13 +77,21 @@ def generate_embeddings(
                 while nan_bool or nan_bool is None:
                     # load the file
                     mel_spec = np.load(fpath)
-                    mel_spec = tf.image.random_crop(mel_spec, size=(n_mels, segments*segment_length))   # get random window as input for the encoder
-                    mel_spec = tf.stack(tf.split(mel_spec, num_or_size_splits=segments, axis=1))    # make slices from entire windown
-                    mel_spec = tf.expand_dims(tf.expand_dims(mel_spec, axis=-1), axis=0)    # add batch and channel dim
+                    mel_spec = tf.image.random_crop(
+                        mel_spec, size=(n_mels, segments * segment_length)
+                    )  # get random window as input for the encoder
+                    mel_spec = tf.stack(
+                        tf.split(mel_spec, num_or_size_splits=segments, axis=1)
+                    )  # make slices from entire windown
+                    mel_spec = tf.expand_dims(
+                        tf.expand_dims(mel_spec, axis=-1), axis=0
+                    )  # add batch and channel dim
 
                     # get and save the embedding
                     if modelname.split("_")[-1] == "transformer/":
-                        embedding = model.get_embedding(mel_spec[:,:data_generator_arguments["T"],:,:,:])
+                        embedding = model.get_embedding(
+                            mel_spec[:, : data_generator_arguments["T"], :, :, :]
+                        )
                     else:
                         embedding = model.get_embedding(mel_spec)
 
@@ -160,7 +170,9 @@ generate_embeddings(
 )
 # -------TSNE plotting of the train and test embeddings---------------------
 # load the data
-embeddings_train = load_embeddings(path_load_embeddings_train)
+embeddings_train = load_embeddings(
+    path_load_embeddings_train
+)  # (num_embeddings, c_dim)
 embeddings_test = load_embeddings(path_load_embeddings_test)
 
 # compute the labels
@@ -176,14 +188,18 @@ classes = [
     "jazz",
     "hiphop",
 ]
-labels_train = [
-    [classes[i] for i, label in enumerate(classes) if label in p][0]
-    for p in os.listdir(path_load_embeddings_train)
-]
-labels_test = [
-    [classes[i] for i, label in enumerate(classes) if label in p][0]
-    for p in os.listdir(path_load_embeddings_test)
-]
+labels_train = np.array(
+    [  # label of each data point in str
+        [classes[i] for i, label in enumerate(classes) if label in p][0]
+        for p in os.listdir(path_load_embeddings_train)
+    ]
+)  # (num_embeddings)
+labels_test = np.array(
+    [
+        [classes[i] for i, label in enumerate(classes) if label in p][0]
+        for p in os.listdir(path_load_embeddings_test)
+    ]
+)
 
 # do the tsne
 plot_tsne(
@@ -200,3 +216,26 @@ plot_tsne(
     "test",
     "tsne_testEmbeddings.svg",
 )
+
+# tsne for each genre with merged data
+for genre in classes:
+    logic_genre_train = labels_train[labels_train == genre]  # logical array
+    logic_genre_test = labels_test[labels_test == genre]
+    selected_train = embeddings_train[
+        logic_genre_train
+    ]  # embeddings with selected genre
+    selected_test = embeddings_test[logic_genre_test]
+    selected_ems = np.concatenate((selected_train, selected_test))
+    labels_joint = np.concatenate(
+        (
+            np.repeat(["train"], repeats=selected_train.shape[0]),
+            np.repeat(["test"], repeats=selected_test.shape[0]),
+        )
+    )
+    plot_tsne(
+        selected_ems,
+        labels_joint,
+        path_save_classifier_plots,
+        genre,
+        "tsne_{}Embeddings.svg".format(genre),
+    )

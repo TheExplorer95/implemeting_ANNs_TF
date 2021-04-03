@@ -3,10 +3,12 @@ import argparse
 
 # handling logging level
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf
 import logging
-logging.getLogger('tensorflow').setLevel(logging.WARNING)
+
+logging.getLogger("tensorflow").setLevel(logging.WARNING)
 
 # general imports
 from datetime import datetime
@@ -18,7 +20,9 @@ set_mixed_precission(mixed_precision)
 
 # ----------- setting Path variables-----------------------------
 cmd_args = get_command_line_args()
-modelname = cmd_args['model_name']  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
+modelname = cmd_args[
+    "model_name"
+]  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 mode = "local"  # one of 'colab', 'local'
 if mode == "local":
     project_path = os.path.dirname(os.getcwd())  # path to the project folder

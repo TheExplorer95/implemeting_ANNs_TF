@@ -4,6 +4,7 @@ from preprocess_data import create_cpc_ds
 from cpc_model import Predict_z, CPC, InfoNCE
 from custom_training import train_cpc
 from utils import configure_gpu_options
+
 if set_memory_growth_tf:
     configure_gpu_options()
 
@@ -29,7 +30,7 @@ cpc = CPC(
 # print summary
 for i in train_ds_cpc.take(1):
     cpc(i, training=False)
-print(f'[INFO] - Created the {cpc.name} model.\n')
+print(f"[INFO] - Created the {cpc.name} model.\n")
 cpc.summary()
 
 # load trained model when training was stopped
