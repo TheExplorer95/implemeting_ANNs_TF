@@ -9,6 +9,66 @@ from cpc_model import CPC, Predict_z
 from analysis import plot_tsne, plot_tsne_per_genre
 
 
+def load_cpc_model(weigth_path=None):
+    cpc = CPC(
+        data_generator_arguments["T"],
+        data_generator_arguments["k"],
+        data_generator_arguments["N"],
+        z_dim,
+        c_dim,
+        enc_model,
+        ar_model,
+        Predict_z,
+        encoder_args,
+        ar_args,
+        mixed_precision,
+    )
+
+    if enc_model == "1d_conv":
+        # compile by feeding dummy data
+        T = data_generator_arguments["T"]
+        k = data_generator_arguments["k"]
+        N = data_generator_arguments["N"]
+        sampling_rate = data_generator_arguments["desired_sr"]
+        batch_size = N
+        duration = data_generator_arguments["full_duration"]
+        sr = data_generator_arguments["desired_sr"]
+        data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
+        dummy_data = tf.random.normal(data_shape, 0, 1)
+        cpc(dummy_data)
+        cpc.summary()
+
+    elif enc_model == "2d_conv":
+        # compile by feeding dummy data
+        T = data_generator_arguments["T"]
+        k = data_generator_arguments["k"]
+        N = data_generator_arguments["N"]
+        batch_size = data_generator_arguments["batch_size"]
+        sample_file_path = os.path.join(
+            data_generator_arguments["data_path"],
+            os.listdir(data_generator_arguments["data_path"])[0],
+        )
+
+        sample = np.load(sample_file_path)
+        n_mels = sample.shape[0]
+        window_size = n_mels  # assumes square input
+
+        # output shape of generator given the arguments
+        data_shape = (batch_size, T + k * N, n_mels, window_size, 1)
+
+        dummy_data = tf.random.normal(data_shape, 0, 1)
+        cpc(dummy_data)
+        cpc.summary()
+
+        # load trained model
+        if weigth_path is not None:
+            cpc.load_weights(weigth_path)
+        else:
+            cpc.load_weights(path_load_model)
+            
+        return cpc
+
+
 def load_embeddings(path):
     em_files = os.listdir(path)
     em_filepaths = [
@@ -119,59 +179,8 @@ def generate_embeddings(
 
 # Load the trained model
 # init
-print("[INFO] - Initializing the classifier.")
-cpc = CPC(
-    data_generator_arguments["T"],
-    data_generator_arguments["k"],
-    data_generator_arguments["N"],
-    z_dim,
-    c_dim,
-    enc_model,
-    ar_model,
-    Predict_z,
-    encoder_args,
-    ar_args,
-    mixed_precision,
-)
-
-if enc_model == "1d_conv":
-    # compile by feeding dummy data
-    T = data_generator_arguments["T"]
-    k = data_generator_arguments["k"]
-    N = data_generator_arguments["N"]
-    sampling_rate = data_generator_arguments["desired_sr"]
-    batch_size = N
-    duration = data_generator_arguments["full_duration"]
-    sr = data_generator_arguments["desired_sr"]
-    data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
-    dummy_data = tf.random.normal(data_shape, 0, 1)
-    cpc(dummy_data)
-    cpc.summary()
-
-elif enc_model == "2d_conv":
-    # compile by feeding dummy data
-    T = data_generator_arguments["T"]
-    k = data_generator_arguments["k"]
-    N = data_generator_arguments["N"]
-    batch_size = data_generator_arguments["batch_size"]
-    sample_file_path = os.path.join(
-        data_generator_arguments["data_path"],
-        os.listdir(data_generator_arguments["data_path"])[0],
-    )
-
-    sample = np.load(sample_file_path)
-    n_mels = sample.shape[0]
-    window_size = n_mels  # assumes square input
-
-    # output shape of generator given the arguments
-    data_shape = (batch_size, T + k * N, n_mels, window_size, 1)
-
-    dummy_data = tf.random.normal(data_shape, 0, 1)
-    cpc(dummy_data)
-    cpc.summary()
-
-# load trained model
-cpc.load_weights(path_load_model)
+print("[INFO] - Initializing the cpc-model.")
+cpc = load_cpc_model()
 
 # Create the embeddings for train and test data
 print("[INFO] - Generating embeddings.")
@@ -220,8 +229,8 @@ labels_test = np.array(
 # do the tsne
 # train data
 plot_tsne(
-    embeddings_train,
-    labels_train,
+    embeddings_train[:embeddings_test.shape[0]],
+    labels_train[:embeddings_test.shape[0]],
     path_save_classifier_plots,
     "training",
     "tsne_trainEmbeddings.svg",
