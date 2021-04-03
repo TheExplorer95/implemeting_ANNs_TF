@@ -86,24 +86,23 @@ class Conv2DEncoder(tf.keras.layers.Layer):
                     kernel_regularizer=regularizer(),
                 )
             )
-            self.enc_layers.append(tf.keras.layers.BatchNormalization())
+            self.enc_layers.append(tf.keras.layers.SpatialDropout2D(0.1))
             self.enc_layers.append(tf.keras.layers.Activation(conv_fct))
 
-        self.enc_layers.append(tf.keras.layers.GlobalMaxPooling2D())
+        self.enc_layers.append(tf.keras.layers.Flatten())
 
         for l in range(len(d)):
             self.enc_layers.append(tf.keras.layers.Dense(units=d[l]))
             self.enc_layers.append(tf.keras.layers.Activation(dense_act))
-            # self.enc_layers.append(tf.keras.layers.Dropout(0.1))
+            self.enc_layers.append(tf.keras.layers.Dropout(0.1))
 
         self.enc_layers.append(tf.keras.layers.Dense(self.z_dim))
         self.enc_layers.append(tf.keras.layers.Activation(dense_act))
 
     def call(self, x, training):
-        for l in self.enc_layers:
+        for i, l in enumerate(self.enc_layers):
             try:  # batch normalization
                 x = l(x, training)
             except Exception:
                 x = l(x)
-
         return x

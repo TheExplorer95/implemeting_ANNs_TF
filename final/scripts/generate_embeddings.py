@@ -104,7 +104,7 @@ def generate_embeddings(
                         embedding = model.get_embedding(
                             mel_spec[:, : data_generator_arguments["T"], :, :, :]
                         )
-                    else:
+                    else:  # gru
                         embedding = model.get_embedding(mel_spec)
 
                     if tf.reduce_any(tf.math.is_nan(embedding)):

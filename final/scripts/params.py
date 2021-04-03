@@ -116,9 +116,9 @@ elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
     path_data_test = os.path.join(project_path, "data/test_data_mel_specs/")
     encoder_args = {
         "z_dim": z_dim,
-        "stride_sizes": [1, 2, 1, 2, 2, 2],
-        "kernel_sizes": [5, 3, 5, 3, 3, 3],
-        "n_filters": [128, 128, 256, 256, 512, 512],
+        "stride_sizes": [2, 2, 2, 2],
+        "kernel_sizes": [3, 3, 3, 3],
+        "n_filters": [32, 64, 256, 512],
         "dense_units": [512],
         "conv_fct": tf.nn.leaky_relu,
         "dense_act": tf.nn.leaky_relu,
