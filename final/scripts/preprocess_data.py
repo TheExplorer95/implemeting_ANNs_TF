@@ -289,3 +289,15 @@ def create_classifier_dataset(embedding_path):
     ds = tf.data.Dataset.from_tensor_slices((embedding_data, em_onehot_labels))
 
     return ds
+
+
+def create_autoencoder_dataset(embedding_path):
+    embedding_data = []
+    for path in embedding_path:  # use both train and test data
+        em_files = os.listdir(path)
+        em_filepaths = [
+            os.path.join(path, f) for f in em_files
+        ]  # train files was created for training
+        embedding_data.append(np.reshape(np.load(x), (1, c_dim)) for x in em_filepaths)
+    ds = tf.data.Dataset.from_tensor_slices((embedding_data, embedding_data))
+    return ds

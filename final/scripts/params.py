@@ -73,10 +73,11 @@ learning_rate = 1e-5  # for cpc
 learning_rate_class = 1e-3  # for classifier
 batch_size_classifier = 32
 
-# -------------- classifier data params --------------------------
+# -------------- classifier params --------------------------
 # How often to sample from a single data to get different parts
 num_em_samples_per_train_data = 30
 num_em_samples_per_test_data = 1
+r_dim = 128  # dimension to reduce data for classifier
 
 # -------------- encoder params -----------------------------------
 z_dim = 256
