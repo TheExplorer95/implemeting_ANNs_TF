@@ -1,15 +1,14 @@
 # handling logging level
 import os
-
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 import tensorflow as tf
 import logging
-
 logging.getLogger("tensorflow").setLevel(logging.WARNING)
 
 # general imports
 from datetime import datetime
-from utils import set_mixed_precission, get_command_line_args
+from utils import set_mixed_precission, get_command_line_args, check_dirs
 
 # use mixed precision allows for bigger models
 mixed_precision = False
@@ -76,8 +75,8 @@ batch_size_classifier = 32
 
 # -------------- classifier data params --------------------------
 # How often to sample from a single data to get different parts
-num_em_samples_per_train_data = 10
-num_em_samples_per_test_data = 1
+num_em_samples_per_train_data = 30
+num_em_samples_per_test_data = 3
 
 # -------------- encoder params -----------------------------------
 z_dim = 256
@@ -123,7 +122,7 @@ elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
         "dense_units": [512],
         "conv_fct": tf.nn.leaky_relu,
         "dense_act": tf.nn.leaky_relu,
-        "kernel_reg": True,
+        "kernel_reg": False,
     }
 
     data_generator_arguments = {

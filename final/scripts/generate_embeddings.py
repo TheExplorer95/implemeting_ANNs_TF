@@ -33,8 +33,11 @@ def generate_embeddings(
 
         folder = os.listdir(folder_path)
         filepaths = [os.path.join(folder_path, f) for f in folder]
-        for i in range(num_em_samples_per_data):
+        n_files = len(filepaths)
+        total_embeddings = n_files * num_em_samples_per_data
 
+        counter = 0
+        for i in range(num_em_samples_per_data):
             for fpath in filepaths:
                 audio_binary = tf.io.read_file(fpath)
                 audio, sr = tf.audio.decode_wav(
@@ -60,6 +63,9 @@ def generate_embeddings(
                     save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
                 )
                 np.save(save_to_, embedding.numpy())
+                counter += 1
+                if coutner % 100 == 0:
+                    print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
     elif enc_model == "2d_conv":
         # output dim (1, 516) are save npy arrays
@@ -70,7 +76,10 @@ def generate_embeddings(
         sample = np.load(filepaths[0])
         n_mels = sample.shape[0]
         segment_length = n_mels
+        n_files = len(filepaths)
+        total_embeddings = n_files * num_em_samples_per_data
 
+        counter = 0
         for i in range(num_em_samples_per_data):
             for fpath in filepaths:
                 nan_bool = None
@@ -104,9 +113,14 @@ def generate_embeddings(
                     save_to_ = save_to + str(i) + os.path.basename(fpath)
                     np.save(save_to_, embedding.numpy())
 
+                    counter += 1
+                    if coutner % 100 == 0:
+                        print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
+
 
 # Load the trained model
 # init
+print("[INFO] - Initializing the classifier.")
 cpc = CPC(
     data_generator_arguments["T"],
     data_generator_arguments["k"],
@@ -157,22 +171,23 @@ elif enc_model == "2d_conv":
     cpc(dummy_data)
     cpc.summary()
 
-
 # load trained model
 cpc.load_weights(path_load_model)
 
-# Use CPC to generate embeddings
+# Create the embeddings for train and test data
+print("[INFO] - Generating embeddings.")
 generate_embeddings(
     cpc, num_em_samples_per_train_data, path_data_train, path_save_embeddings_train
 )
 generate_embeddings(
     cpc, num_em_samples_per_test_data, path_data_test, path_save_embeddings_test
 )
+
 # -------TSNE plotting of the train and test embeddings---------------------
+print("[INFO] - Do the TSNE.")
+
 # load the data
-embeddings_train = load_embeddings(
-    path_load_embeddings_train
-)  # (num_embeddings, c_dim)
+embeddings_train = load_embeddings(path_load_embeddings_train)
 embeddings_test = load_embeddings(path_load_embeddings_test)
 
 # compute the labels
@@ -188,12 +203,14 @@ classes = [
     "jazz",
     "hiphop",
 ]
+
 labels_train = np.array(
     [  # label of each data point in str
         [classes[i] for i, label in enumerate(classes) if label in p][0]
         for p in os.listdir(path_load_embeddings_train)
     ]
-)  # (num_embeddings)
+)
+
 labels_test = np.array(
     [
         [classes[i] for i, label in enumerate(classes) if label in p][0]
@@ -202,6 +219,7 @@ labels_test = np.array(
 )
 
 # do the tsne
+# train data
 plot_tsne(
     embeddings_train,
     labels_train,
@@ -209,6 +227,8 @@ plot_tsne(
     "training",
     "tsne_trainEmbeddings.svg",
 )
+
+# test data
 plot_tsne(
     embeddings_test,
     labels_test,
@@ -217,8 +237,10 @@ plot_tsne(
     "tsne_testEmbeddings.svg",
 )
 
-
-
-
-# tsne for each genre with merged data
-plot_tsne_per_genre(embeddings_train, embeddings_test, labels_train, labels_test, path_save_classifier_plots, classes)
+# each genre with merged test and train data
+plot_tsne_per_genre(embeddings_train,
+                    embeddings_test,
+                    labels_train,
+                    labels_test,
+                    path_save_classifier_plots,
+                    classes)
