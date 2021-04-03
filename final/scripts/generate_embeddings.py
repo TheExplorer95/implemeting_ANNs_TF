@@ -37,7 +37,7 @@ def generate_embeddings(
         total_embeddings = n_files * num_em_samples_per_data
 
         counter = 0
-        
+
         for fpath in filepaths:
             audio_binary = tf.io.read_file(fpath)
             audio, sr = tf.audio.decode_wav(
@@ -80,45 +80,44 @@ def generate_embeddings(
         total_embeddings = n_files * num_em_samples_per_data
 
         counter = 0
-        for i in range(num_em_samples_per_data):
-            for fpath in filepaths:
-                nan_bool = None
-                while nan_bool or nan_bool is None:
-                    # load the file
-                    mel_spec = tf.squeeze(preprocess_mel_spec(np.load(fpath)))
-                    # get random window as input for the encoder
-                    mel_spec = tf.image.random_crop(
-                        mel_spec, size=(n_mels, segments * segment_length)
+        for fpath in filepaths:
+            for i in range(num_em_samples_per_data):
+
+                # load the file
+                mel_spec = tf.squeeze(preprocess_mel_spec(np.load(fpath)))
+                # get random window as input for the encoder
+                mel_spec = tf.image.random_crop(
+                    mel_spec, size=(n_mels, segments * segment_length)
+                )
+                # make slices from entire windown
+                mel_spec = tf.stack(
+                    tf.split(mel_spec, num_or_size_splits=segments, axis=1)
+                )
+                # add batch and channel dim
+                mel_spec = tf.expand_dims(
+                    tf.expand_dims(mel_spec, axis=-1), axis=0
+                )
+
+                # get and save the embedding
+                if modelname.split("_")[-1] == "transformer/":
+                    embedding = model.get_embedding(
+                        mel_spec[:, : data_generator_arguments["T"], :, :, :]
                     )
-                    # make slices from entire windown
-                    mel_spec = tf.stack(
-                        tf.split(mel_spec, num_or_size_splits=segments, axis=1)
-                    )
-                    # add batch and channel dim
-                    mel_spec = tf.expand_dims(
-                        tf.expand_dims(mel_spec, axis=-1), axis=0
-                    )
+                else:  # gru
+                    embedding = model.get_embedding(mel_spec)
 
-                    # get and save the embedding
-                    if modelname.split("_")[-1] == "transformer/":
-                        embedding = model.get_embedding(
-                            mel_spec[:, : data_generator_arguments["T"], :, :, :]
-                        )
-                    else:  # gru
-                        embedding = model.get_embedding(mel_spec)
+                if tf.reduce_any(tf.math.is_nan(embedding)):
+                    nan_bool = True
+                    continue
+                else:
+                    nan_bool = False
 
-                    if tf.reduce_any(tf.math.is_nan(embedding)):
-                        nan_bool = True
-                        continue
-                    else:
-                        nan_bool = False
+                save_to_ = save_to + str(i) + os.path.basename(fpath)
+                np.save(save_to_, embedding.numpy())
 
-                    save_to_ = save_to + str(i) + os.path.basename(fpath)
-                    np.save(save_to_, embedding.numpy())
-
-                    counter += 1
-                    if counter % 100 == 0:
-                        print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
+                counter += 1
+                if counter % 100 == 0:
+                    print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
 
 # Load the trained model
