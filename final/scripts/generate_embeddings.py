@@ -45,22 +45,21 @@ def generate_embeddings(
                 desired_channels=1,
                 desired_samples=max_duration * original_sr,
             )
+            if not desired_sr == original_sr:
+                audio = tfio.audio.resample(audio, original_sr, desired_sr)
             for i in range(num_em_samples_per_data):
-                if not desired_sr == original_sr:
-                    audio = tfio.audio.resample(audio, original_sr, desired_sr)
-
-                audio = tf.squeeze(audio, axis=-1)
-                audio = tf.image.random_crop(audio, size=(segments * segment_length,))
-                audio = tf.reshape(audio, (1, segments, segment_length, 1))
+                audio_load = tf.squeeze(audio, axis=-1)
+                audio_load = tf.image.random_crop(audio_load, size=(segments * segment_length,))
+                audio_load = tf.reshape(audio_load, (1, segments, segment_length, 1))
                 if modelname.split("_")[-1] == "transformer/":
                     embedding = model.get_embedding(
-                        audio[:, : data_generator_arguments["T"], :, :]
+                        audio_load[:, : data_generator_arguments["T"], :, :]
                     )
                 else:
-                    embedding = model.get_embedding(audio)
+                    embedding = model.get_embedding(audio_load)
 
                 save_to_ = (
-                    save_to + str(i) + os.path.basename(fpath).replace(".wav", ".npy")
+                    save_to + str(i+30) + os.path.basename(fpath).replace(".wav", ".npy")
                 )
                 np.save(save_to_, embedding.numpy())
                 counter += 1
