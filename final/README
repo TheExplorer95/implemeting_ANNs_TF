@@ -1,9 +1,10 @@
 How to:
 
-1. Set the desired model to train within run_experiment.sh [1dconv_gru/, 1dconv_transformer/, 2dconv_gru/]
-2. Run the bashscript from the command line: ./run_experiment.sh
+1. Acquire the following datasets: GTZAN (/data/GTZAN), fma_small (/data/fma_small_mono_wav) and youtube (/data/test_data) and place them into their respective folder
+3. Set the desired model to train within run_experiment.sh [1dconv_gru/, 1dconv_transformer/, 2dconv_gru/]
+4. Run the bashscript from the command line: ./run_experiment.sh
 
-To interact with the Framework on a more  low level handling of the parameters and models check out the README file inside the scripts folder.
+To interact with the Framework on a more low level handling of the parameters and models check out the README file inside the scripts folder.
 
 
 /Data conversion: scripts to convert data
@@ -13,6 +14,8 @@ To interact with the Framework on a more  low level handling of the parameters a
 /history: .npy of training results, call with np.load(allow_pickle=True).item()
 
 /scripts: python scripts to run the model
+
+/Music from Youtube.pdf: how to acquire the dataset for testing the classifier
 
  - params.py: only file to change
  - train_cpc.py: train cpc and save weights
