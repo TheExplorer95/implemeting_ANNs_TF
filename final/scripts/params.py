@@ -78,8 +78,8 @@ optimizer_cpc = tf.keras.optimizers.Adam(1e-5)
 
 # --------------- Classifier Training params-------------
 
-epochs_class = 1
-optimizer_class = tf.keras.optimizers.Adam(1e-3)
+epochs_class = 10
+optimizer_class = tf.keras.optimizers.Adam(1e-4)
 batch_size_class = 32
 test_size_classifier = 5000  # number of samples to be used as a test dataset
 
@@ -87,7 +87,7 @@ test_size_classifier = 5000  # number of samples to be used as a test dataset
 # --------------- Dimension Reduction params (for classifier)----
 
 r_dim = 32  # num dimensions to reduce to
-epochs_dimension_reduction = 1
+epochs_dimension_reduction = 10
 optimizer_dimension_reduction = tf.keras.optimizers.Adam(1e-5)
 batch_size_dimension_reduction = 32
 
@@ -95,8 +95,8 @@ batch_size_dimension_reduction = 32
 # -------------- generate embeddings params --------------------------
 
 # How often to randomly sample from a single data to get different audio segments of length
-num_em_samples_per_train_data = 30
-num_em_samples_per_test_data = 3
+num_em_samples_per_train_data = 90
+num_em_samples_per_test_data = 5
 
 
 # --------------- TSNE embedding visualization parameters -------------------------------
