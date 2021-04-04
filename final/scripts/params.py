@@ -68,18 +68,24 @@ check_dirs(
     ]
 )
 
+
 # ------------- CPC training params ---------------------------------
+
 epochs_cpc = 700
 steps_per_epoch_cpc = 100  # how many batch are fed in a single epoch
 optimizer_cpc = tf.keras.optimizers.Adam(1e-5)
 
+
 # --------------- Classifier Training params-------------
+
 epochs_class = 1
 optimizer_class = tf.keras.optimizers.Adam(1e-3)
 batch_size_class = 32
 test_size_classifier = 5000  # number of samples to be used as a test dataset
 
+
 # --------------- Dimension Reduction params (for classifier)----
+
 r_dim = 32  # num dimensions to reduce to
 epochs_dimension_reduction = 1
 optimizer_dimension_reduction = tf.keras.optimizers.Adam(1e-5)
@@ -87,14 +93,19 @@ batch_size_dimension_reduction = 32
 
 
 # -------------- generate embeddings params --------------------------
+
 # How often to randomly sample from a single data to get different audio segments of length
 num_em_samples_per_train_data = 30
 num_em_samples_per_test_data = 3
 
+
 # --------------- TSNE embedding visualization parameters -------------------------------
+
 num_tsne = 3000  # number of points to plot in t-SNE
 
+
 # -------------- encoder params -----------------------------------
+
 z_dim = 256  # dimension of latent representation
 
 # 1dconv encoder params (raw audio data)
@@ -150,8 +161,9 @@ elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
     }
 
 
-# ----------------- AR params --------------------------------
-c_dim = 512
+# ----------------- Parameters for Autoregressive Model --------------------------------
+
+c_dim = 512 # size of context embedding vector
 
 # GRU AR params
 if modelname == "1dconv_gru/" or modelname == "2dconv_gru/":
