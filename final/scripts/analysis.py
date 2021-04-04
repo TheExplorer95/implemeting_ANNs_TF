@@ -73,19 +73,21 @@ def plot_tsne(
 
     tsne_train = tsne_data[:data_train.shape[0]]
     tsne_test  = tsne_data[data_train.shape[0]:]
-
+    legend_font_size = 20
+    title_font_size = 25
     # create a separate tsne plot for both train and test in the same space
     for i, tsne_i in enumerate([tsne_train, tsne_test]):
         if i:
-            fn = "tsne_plot_test.svg"
+            fn = "tsne_plot_test.eps"
             title ="YouTube (test)"
             labels = labels_test
         else:
-            fn = "tsne_plot_train.svg"
+            fn = "tsne_plot_train.eps"
             title = "GTZAN (train)"
             labels = labels_train
 
         plt.figure(figsize=(10, 10))
+        #sns.set(font_scale=2)
         tsne_plot = sns.scatterplot(
             x=tsne_i[:, 0],
             y=tsne_i[:, 1],
@@ -106,28 +108,29 @@ def plot_tsne(
             legend="full",
         )
 
-        tsne_plot.legend(loc="center left", bbox_to_anchor=(1, 0.5), ncol=1)
+        tsne_plot.legend(loc="center left", bbox_to_anchor=(1, 0.5), ncol=1, fontsize = legend_font_size)
+        #plt.legend(fontsize='x-large', title_fontsize='40')
         tsne_plot.set_title(
-            f"{title} Embeddings", fontdict={"fontsize": 25}
+            f"{title} Embeddings", fontdict={"fontsize": title_font_size}
         )
         plt.savefig(os.path.join(save_path, fn), bbox_inches="tight")
 
     for genre in classes:
+        print(f"T-SNE plot for {genre} created.")
         # logical array to select correct indices
         logic_genre_train = labels_train == genre
         logic_genre_test = labels_test == genre
         # take correct points
         tsne_data_train = tsne_data[: labels_train.shape[0]]
         tsne_data_test = tsne_data[labels_train.shape[0] :]
-        print(tsne_data_train.shape)
-        print(tsne_data_test.shape)
+
         selected_train = tsne_data_train[logic_genre_train]
         selected_test = tsne_data_test[logic_genre_test]
         selected_ems = np.concatenate((selected_train, selected_test))
         labels_joint = np.concatenate(
             (
-                np.repeat(["train"], repeats=selected_train.shape[0]),
-                np.repeat(["test"], repeats=selected_test.shape[0]),
+                np.repeat(["GTZAN (train)"], repeats=selected_train.shape[0]),
+                np.repeat(["YouTube (test)"], repeats=selected_test.shape[0]),
             )
         )
 
@@ -135,19 +138,20 @@ def plot_tsne(
         plt.figure(figsize=(10, 10))
         plt.xlim([xmin - eps, xmax + eps])
         plt.ylim([ymin - eps, ymax + eps])
+
         tsne_plot = sns.scatterplot(
             x=selected_ems[:, 0],
             y=selected_ems[:, 1],
             hue=labels_joint,
             palette=["blue", "red"],
-            hue_order = ["train","test"],
+            hue_order = ["GTZAN (train)","YouTube (test)"],
             legend="full",
         )
 
-        tsne_plot.legend(loc="center left", bbox_to_anchor=(1, 0.5), ncol=1)
+        tsne_plot.legend(loc="center left", bbox_to_anchor=(1, 0.5), ncol=1, fontsize = legend_font_size)
         tsne_plot.set_title(
-            f"{genre} Embeddings", fontdict={"fontsize": 25}
+            f"{genre} Embeddings", fontdict={"fontsize": title_font_size}
         )
         plt.savefig(
-            os.path.join(save_path, f"tsne_plot_{genre}.svg"), bbox_inches="tight"
+            os.path.join(save_path, f"tsne_plot_{genre}.eps"), bbox_inches="tight"
         )
