@@ -1,4 +1,4 @@
-# How to
+How to:
 
 1. Set the desired model to train within run_experiment.sh [1dconv_gru/, 1dconv_transformer/, 2dconv_gru/]
 2. Run the bashscript from the command line: ./run_experiment.sh
@@ -6,7 +6,7 @@
 To interact with the Framework on a more  low level handling of the parameters and models check out the README file inside the scripts folder.
 
 
-#Documents for the project
+Documents for the project:
 
 main report: https://www.overleaf.com/6116949283hdvqbcbydgzd
 
