@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-declare -a models=("2dconv_gru/")
+declare -a models=("1dconv_gru/")
 #, "1dconv_transformer/" "2dconv_gru/")
 
 # run entire script for each model in models
