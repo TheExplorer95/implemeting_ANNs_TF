@@ -5,8 +5,10 @@ import numpy as np
 
 def get_classifier(c_dim, num_classes, reduce_model):
     embedding_inputs = tf.keras.Input(shape=(c_dim))
+
+    ### TODO: set trainable = False
     x = reduce_model.get_embeddings(embedding_inputs)  # first reduce dim
-    
+
     outputs = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
     model = tf.keras.Model(
         inputs=embedding_inputs, outputs=outputs, name="music_classifier"
