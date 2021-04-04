@@ -72,5 +72,5 @@ np.save(os.path.join(path_save_classifier_plots, exp_data_fn), history.history)
 
 # 2. Confusion matrix
 plot_confusion_matrix(
-    test_ds.take(test_size_classifier), classifier, path_save_classifier_plots
+    test_ds, classifier, path_save_classifier_plots
 )
