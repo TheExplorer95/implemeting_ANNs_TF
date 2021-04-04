@@ -1,7 +1,8 @@
-For standard users, standard workflow would look as following:
+For advanced users the workflow would look as following:
 
-1. Set correct parameters in params.py
-2. Run train_cpc.py, generate_embeddings.py, generate_tSNE.py, train_classifiers.py in order
+1. Choose the desired_model to train [1dconv_gru/, 1dconv_transformer/, 2dconv_gru/]
+2. Set desired parameters in params.py
+3. Run train_cpc.py -m {desired_model}, generate_embeddings.py -m {desired_model} and train_classifiers.py -m {desired_model} in sequential order for a typical training scheme or as desired 
 
 - utils.py: functions to handle automatic directory generation, timer, performance
 
