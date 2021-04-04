@@ -1,4 +1,4 @@
-#How to
+# How to
 
 1. Set the desired model to train within run_experiment.sh [1dconv_gru/, 1dconv_transformer/, 2dconv_gru/]
 2. Run the bashscript from the command line: ./run_experiment.sh
