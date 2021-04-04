@@ -14,7 +14,7 @@ def get_classifier(c_dim, num_classes, reduce_model):
         inputs=embedding_inputs, outputs=outputs, name="music_classifier"
     )
     model.summary()
-    model.layers[0].trainable = False # do not train autoencoder
+    model.layers[0].trainable = False # do not train autoencoder in
     return model
 
 

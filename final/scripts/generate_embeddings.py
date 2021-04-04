@@ -117,70 +117,70 @@ def generate_embeddings(
                         print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
 
-# Load the trained model
-# init
-print("[INFO] - Initializing the classifier.")
-cpc = CPC(
-    data_generator_arguments["T"],
-    data_generator_arguments["k"],
-    data_generator_arguments["N"],
-    z_dim,
-    c_dim,
-    enc_model,
-    ar_model,
-    Predict_z,
-    encoder_args,
-    ar_args,
-    mixed_precision,
-)
-
-if enc_model == "1d_conv":
-    # compile by feeding dummy data
-    T = data_generator_arguments["T"]
-    k = data_generator_arguments["k"]
-    N = data_generator_arguments["N"]
-    sampling_rate = data_generator_arguments["desired_sr"]
-    batch_size = N
-    duration = data_generator_arguments["full_duration"]
-    sr = data_generator_arguments["desired_sr"]
-    data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
-    dummy_data = tf.random.normal(data_shape, 0, 1)
-    cpc(dummy_data)
-    cpc.summary()
-
-elif enc_model == "2d_conv":
-    # compile by feeding dummy data
-    T = data_generator_arguments["T"]
-    k = data_generator_arguments["k"]
-    N = data_generator_arguments["N"]
-    batch_size = data_generator_arguments["batch_size"]
-    sample_file_path = os.path.join(
-        data_generator_arguments["data_path"],
-        os.listdir(data_generator_arguments["data_path"])[0],
-    )
-
-    sample = np.load(sample_file_path)
-    n_mels = sample.shape[0]
-    window_size = n_mels  # assumes square input
-
-    # output shape of generator given the arguments
-    data_shape = (batch_size, T + k * N, n_mels, window_size, 1)
-
-    dummy_data = tf.random.normal(data_shape, 0, 1)
-    cpc(dummy_data)
-    cpc.summary()
-
-# load trained model
-cpc.load_weights(path_load_model)
-
-# Create the embeddings for train and test data
-print("[INFO] - Generating embeddings.")
-generate_embeddings(
-    cpc, num_em_samples_per_train_data, path_data_train, path_save_embeddings_train
-)
-generate_embeddings(
-    cpc, num_em_samples_per_test_data, path_data_test, path_save_embeddings_test
-)
+# # Load the trained model
+# # init
+# print("[INFO] - Initializing the classifier.")
+# cpc = CPC(
+#     data_generator_arguments["T"],
+#     data_generator_arguments["k"],
+#     data_generator_arguments["N"],
+#     z_dim,
+#     c_dim,
+#     enc_model,
+#     ar_model,
+#     Predict_z,
+#     encoder_args,
+#     ar_args,
+#     mixed_precision,
+# )
+#
+# if enc_model == "1d_conv":
+#     # compile by feeding dummy data
+#     T = data_generator_arguments["T"]
+#     k = data_generator_arguments["k"]
+#     N = data_generator_arguments["N"]
+#     sampling_rate = data_generator_arguments["desired_sr"]
+#     batch_size = N
+#     duration = data_generator_arguments["full_duration"]
+#     sr = data_generator_arguments["desired_sr"]
+#     data_shape = (batch_size, T + k * N, int((duration * sr) / (T + k)), 1)
+#     dummy_data = tf.random.normal(data_shape, 0, 1)
+#     cpc(dummy_data)
+#     cpc.summary()
+#
+# elif enc_model == "2d_conv":
+#     # compile by feeding dummy data
+#     T = data_generator_arguments["T"]
+#     k = data_generator_arguments["k"]
+#     N = data_generator_arguments["N"]
+#     batch_size = data_generator_arguments["batch_size"]
+#     sample_file_path = os.path.join(
+#         data_generator_arguments["data_path"],
+#         os.listdir(data_generator_arguments["data_path"])[0],
+#     )
+#
+#     sample = np.load(sample_file_path)
+#     n_mels = sample.shape[0]
+#     window_size = n_mels  # assumes square input
+#
+#     # output shape of generator given the arguments
+#     data_shape = (batch_size, T + k * N, n_mels, window_size, 1)
+#
+#     dummy_data = tf.random.normal(data_shape, 0, 1)
+#     cpc(dummy_data)
+#     cpc.summary()
+#
+# # load trained model
+# cpc.load_weights(path_load_model)
+#
+# # Create the embeddings for train and test data
+# print("[INFO] - Generating embeddings.")
+# generate_embeddings(
+#     cpc, num_em_samples_per_train_data, path_data_train, path_save_embeddings_train
+# )
+# generate_embeddings(
+#     cpc, num_em_samples_per_test_data, path_data_test, path_save_embeddings_test
+# )
 
 # -------TSNE plotting of the train and test embeddings---------------------
 print("[INFO] - Do the TSNE.")

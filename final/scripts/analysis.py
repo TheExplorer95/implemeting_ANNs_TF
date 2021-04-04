@@ -77,6 +77,18 @@ def plot_tsne(data, labels, save_path, title, fn="tsne_plot.svg"):
             "darkcyan",
             "black",
         ],
+        hue_order = [
+            "blues",
+            "reggae",
+            "metal",
+            "rock",
+            "pop",
+            "classical",
+            "country",
+            "disco",
+            "jazz",
+            "hiphop",
+        ],
         legend="full",
     )
 
@@ -127,6 +139,7 @@ def plot_tsne_per_genre(
             y=selected_ems[:, 1],
             hue=labels_joint,
             palette=["red", "black"],
+            hue_order = ["train","test"],
             legend="full",
         )
 
