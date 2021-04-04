@@ -1,0 +1,30 @@
+For standard users, standard workflow would look as following:
+
+1. Set correct parameters in params.py
+2. Run train_cpc.py, generate_embeddings.py, generate_tSNE.py, train_classifiers.py in order
+
+- utils.py: functions to handle automatic directory generation, timer, performance
+
+- ** params.py **: set different hyperparameters and paths, used as global variables
+
+- preprocess_data.py: define functions to handle data pipeline
+
+- encoder_model.py: define different encoder architectures (currently supports 1D-conv and 2D-conv encoders)
+
+- autoregressive_model.py: define different autoregressive model architectures (currently supports GRU and attention-based models)
+
+- cpc_model.py: whole CPC architecture and InfoNCE loss
+
+- custom_training.py: define functions used to train CPC
+
+- ** train_cpc.py **: used to train CPC model and save weights
+
+- ** generate_embeddings.py **: used to create and save embeddings by using trained CPC model weights
+
+- analysis.py: functions generate plots
+
+- ** generate_tSNE.py **: used to generate and save tSNE plots based on saved embeddings
+
+- classifier_model.py: define auto-encoder to reduce dimensionality of embeddings and classifier to classify music genres
+
+- ** train_classifiers.py **: used to train and evaluate classifiers
