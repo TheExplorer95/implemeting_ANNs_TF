@@ -96,7 +96,7 @@ def generate_embeddings(
                     tf.expand_dims(mel_spec, axis=-1), axis=0
                 )
 
-                # get and save the embedding
+                # save the embedding
                 if modelname.split("_")[-1] == "transformer/":
                     embedding = model.get_embedding(
                         mel_spec[:, : data_generator_arguments["T"], :, :, :]
@@ -104,15 +104,17 @@ def generate_embeddings(
                 else:  # gru
                     embedding = model.get_embedding(mel_spec)
 
-                if tf.reduce_any(tf.math.is_nan(embedding)):
+                # save the embedding
+                if not tf.reduce_any(tf.math.is_nan(embedding)) and not tf.reduce_any(tf.math.is_finite(embedding)):
                     print(f'[ERROR] - Can not extract embedding from mel_spec {counter}')
+                    print(embedding)
+                else:
+                    save_to_ = save_to + str(i) + os.path.basename(fpath)
+                    np.save(save_to_, embedding.numpy())
 
-                save_to_ = save_to + str(i) + os.path.basename(fpath)
-                np.save(save_to_, embedding.numpy())
-
-                counter += 1
-                if counter % 100 == 0:
-                    print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
+                    counter += 1
+                    if counter % 100 == 0:
+                        print(f"[INFO] - Embeddings generated: {counter}, Embeddings remaining: {total_embeddings-counter}")
 
 
 # Load the trained model
