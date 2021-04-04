@@ -50,13 +50,15 @@ cce = tf.keras.losses.CategoricalCrossentropy()
 # 4. train and test the classifier
 classifier.compile(optimizer=optimizer_class, loss=cce, metrics=["accuracy"])
 print(f"\n[INFO] - Created the {classifier.name} model.")
+
+classifier.layers[1].trainable = False # do not train autoencoder in classifier
 classifier.summary()
+print(f"Inside the classifier, the Encoder of the Autoencoder is set to: trainable = {classifier.layers[1].trainable == True}")
 
 print(f"\n[Info] - Start training the classifier.")
 history = classifier.fit(
     train_ds,
     epochs=epochs_class,
-    steps_per_epoch=9000,
     batch_size=batch_size_class,
     validation_data=test_ds.take(test_size_classifier),
 )
