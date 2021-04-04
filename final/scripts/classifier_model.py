@@ -40,9 +40,9 @@ class DimensionalityReduction(tf.keras.Model):
         ])
         self.decoder = tf.keras.Sequential([
         tf.keras.layers.Dropout(0.1),
-        tf.keras.layers.Dense(128, activation=self.activ),
+        tf.keras.layers.Dense(64, activation=self.activ),
         tf.keras.layers.Dropout(0.1),
-        tf.keras.layers.Dense(256, activation=self.activ),
+        tf.keras.layers.Dense(128, activation=self.activ),
         tf.keras.layers.Dropout(0.1),
         tf.keras.layers.Dense(256, activation=self.activ),
         tf.keras.layers.Dropout(0.1),
