@@ -1,10 +1,11 @@
+from params import *
 import os
 import random
 import tensorflow_io as tfio
 import numpy as np
 import scipy
 
-from params import *
+
 
 
 def decode_audio(audio_path, original_sr, desired_sr, duration, max_duration=30):
@@ -298,6 +299,9 @@ def create_autoencoder_dataset(embedding_path):
         em_filepaths = [
             os.path.join(path, f) for f in em_files
         ]  # train files was created for training
-        embedding_data.append(np.reshape(np.load(x), (1, c_dim)) for x in em_filepaths)
+        embedding_data.append([np.reshape(np.load(x), (1, c_dim)) for x in em_filepaths])
+    embedding_data = [item for sublist in embedding_data for item in sublist] # flatten lists
     ds = tf.data.Dataset.from_tensor_slices((embedding_data, embedding_data))
+
+
     return ds

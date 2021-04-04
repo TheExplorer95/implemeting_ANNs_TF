@@ -5,11 +5,12 @@ import tensorflow as tf
 
 
 def configure_gpu_options():
-    # allows for GPU memory growth
-    config = tf.compat.v1.ConfigProto()
-    config.gpu_options.allow_growth = True
-    sess = tf.compat.v1.Session(config=config)
-    tf.compat.v1.keras.backend.set_session(sess)
+# allows for GPU memory growth
+    physical_devices = tf.config.list_physical_devices('GPU')
+    try:
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    except Exception:
+        print('[INFO] - Cannot activate memory growth.')
 
 
 class Timer:

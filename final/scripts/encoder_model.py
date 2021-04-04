@@ -1,3 +1,4 @@
+from params import * 
 import tensorflow as tf
 
 

@@ -70,10 +70,16 @@ check_dirs(
 # ------------- training params ---------------------------------
 epochs_cpc = 700
 steps_per_epoch_cpc = 100
-epochs_class = 1000
-learning_rate = 1e-5  # for cpc
-learning_rate_class = 1e-3  # for classifier
-batch_size_classifier = 32
+optimizer_cpc = tf.keras.optimizers.Adam(1e-5)  # for cpc
+
+epochs_class = 20
+optimizer_class = tf.keras.optimizers.Adam(1e-3)  # for classifier
+batch_size_class = 32
+
+epochs_dimension_reduction = 4
+optimizer_dimension_reduction = tf.keras.optimizers.Adam(1e-5)
+batch_size_dimension_reduction = 32
+
 
 # -------------- classifier params --------------------------
 # How often to sample from a single data to get different parts

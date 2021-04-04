@@ -41,15 +41,13 @@ if path_to_continue_training:
 loss = InfoNCE()
 train_loss_metric_cpc = tf.keras.metrics.Mean("train_loss_CPC")
 
-# Optimizer
-adam = tf.keras.optimizers.Adam(learning_rate)
 
 # Training
 train_cpc(
     cpc,
     train_ds_cpc,
     loss,
-    adam,
+    optimizer_cpc,
     epochs_cpc,
     steps_per_epoch_cpc,
     mixed_precision,

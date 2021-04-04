@@ -1,3 +1,4 @@
+from params import *
 import tensorflow as tf
 
 from autoregressive_model import GRU_AR, Transformer

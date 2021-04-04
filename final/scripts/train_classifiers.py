@@ -18,12 +18,15 @@ if set_memory_growth_tf:
 em_ds = create_autoencoder_dataset(
     [path_load_embeddings_train, path_load_embeddings_test]
 )  # dataset
+
+
+# define tf functional api autoencoder model
 reducer = DimensionalityReduction(c_dim, r_dim)  # model
-optim_ae = tf.keras.optimizers.Adam(learning_rate_class)  # optimizer
-mse = tf.keras.losses.MSE()  # loss
-reducer.compile(optimizer=optim_ae, loss=mse)  # compile
+mse = tf.keras.losses.MeanSquaredError()  # loss
+reducer.compile(optimizer=optimizer_dimension_reduction, loss=mse)  # compile
+# train autoencoder
 history_dm = reducer.fit(
-    em_ds, epochs=epochs_class, batch_size=batch_size_classifier
+     em_ds,  epochs=epochs_dimension_reduction,shuffle = True,  batch_size=batch_size_dimension_reduction
 )  # train
 np.save(
     os.path.join(path_save_classifier_plots, "autoencoder_results.npy"),
@@ -39,11 +42,10 @@ test_ds = create_classifier_dataset(path_load_embeddings_test)
 # 3. 3 design principles
 print("[INFO] - Initializing the classifier.")
 classifier = get_classifier(c_dim, 10, reducer)  # use reducer to reduce dim beforehand
-optimizer = tf.keras.optimizers.Adam(learning_rate_class)
 cce = tf.keras.losses.CategoricalCrossentropy()
 
 # 4. train and test the classifier
-classifier.compile(optimizer=optimizer, loss=cce, metrics=["accuracy"])
+classifier.compile(optimizer=optimizer_class, loss=cce, metrics=["accuracy"])
 print(f"\n[INFO] - Created the {classifier.name} model.")
 classifier.summary()
 
