@@ -1,9 +1,0 @@
-name: python3_8
-channels:
-  - defaults
-dependencies:
-  - _libgcc_mutex=0.1=main
-  - ca-certificates=2021.1.19=h06a4308_1
-  - libgcc-ng=9.1.0=hdf63c60_0
-  - openssl=1.1.1k=h27cfd23_0
-prefix: /home/mp/anaconda3/envs/python3_8
