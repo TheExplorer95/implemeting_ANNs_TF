@@ -72,20 +72,24 @@ epochs_cpc = 700
 steps_per_epoch_cpc = 100
 optimizer_cpc = tf.keras.optimizers.Adam(1e-5)  # for cpc
 
+### Classifier Training Hyperparameters
 epochs_class = 20
 optimizer_class = tf.keras.optimizers.Adam(1e-3)  # for classifier
 batch_size_class = 32
 
+### Dimension Reduction Hyperparameters for Classifier
+r_dim = 32  # dimension to reduce data for classifier
 epochs_dimension_reduction = 4
 optimizer_dimension_reduction = tf.keras.optimizers.Adam(1e-5)
 batch_size_dimension_reduction = 32
 
 
-# -------------- classifier params --------------------------
-# How often to sample from a single data to get different parts
+
+# -------------- generate embeddings params --------------------------
+# How often to randomly sample from a single data to get different parts
 num_em_samples_per_train_data = 30
 num_em_samples_per_test_data = 1
-r_dim = 128  # dimension to reduce data for classifier
+
 
 # -------------- encoder params -----------------------------------
 z_dim = 256
