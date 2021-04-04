@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 declare -a models=("1dconv_gru/")
-# "1dconv_transformer/" "2dconv_gru/")
+#, "1dconv_transformer/" "2dconv_gru/")
 
 # run entire script for each model in models
 for model in ${models[@]}
@@ -11,5 +11,5 @@ do
    	# get embeddings
    	python scripts/generate_embeddings.py -m $model
    	# train classifier and plot results
-   	#python scripts/train_classifiers.py -m $model
+   	python scripts/train_classifiers.py -m $model
 done

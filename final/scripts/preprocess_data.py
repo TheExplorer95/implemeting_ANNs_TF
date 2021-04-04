@@ -5,9 +5,6 @@ import tensorflow_io as tfio
 import numpy as np
 import scipy
 
-
-
-
 def decode_audio(audio_path, original_sr, desired_sr, duration, max_duration=30):
     """
     Loads and decodes wav file and applies sub- or supersampling to achieve a desired sampling rate.
@@ -33,7 +30,6 @@ def preprocess_mel_spec(mel_spec):
 
     mel_spec: tf.tensor or numpy array with n_mels x n_timesteps dimensions
     """
-
     # standardization (over timesteps/per mel bin)
     mean = tf.expand_dims(tf.math.reduce_mean(mel_spec, axis=-1), axis=-1)
     std = tf.expand_dims(tf.math.reduce_std(mel_spec, axis=-1), axis=-1)
@@ -187,7 +183,7 @@ def batch_data_generator_spectogram():
         yield batch
 
 
-def create_cpc_ds(enc_model=enc_model):
+def create_cpc_ds():
     """
     Uses a global dictionary "data_generator_arguments" to create a tf dataset from a generator that outputs batches already.
 

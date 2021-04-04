@@ -6,7 +6,7 @@ import tensorflow as tf
 import tensorflow_io as tfio
 
 from cpc_model import CPC, Predict_z
-from analysis import plot_tsne, plot_tsne_per_genre
+from analysis import plot_tsne
 from preprocess_data import preprocess_mel_spec
 
 
@@ -186,6 +186,8 @@ def generate_embeddings(
 print("[INFO] - Do the TSNE.")
 
 # load the data
+
+
 embeddings_train = load_embeddings(path_load_embeddings_train)
 embeddings_test = load_embeddings(path_load_embeddings_test)
 
@@ -217,29 +219,11 @@ labels_test = np.array(
     ]
 )
 
-# do the tsne
-# train data
-plot_tsne(
-    embeddings_train[:embeddings_test.shape[0]],
-    labels_train[:embeddings_test.shape[0]],
-    path_save_classifier_plots,
-    "training",
-    "tsne_trainEmbeddings.svg",
-)
-
-# test data
-plot_tsne(
-    embeddings_test,
-    labels_test,
-    path_save_classifier_plots,
-    "test",
-    "tsne_testEmbeddings.svg",
-)
 
 # each genre with merged test and train data
-plot_tsne_per_genre(embeddings_train[:embeddings_test.shape[0]],
-                    embeddings_test,
-                    labels_train[:embeddings_test.shape[0]],
-                    labels_test,
+plot_tsne(embeddings_train[:num_tsne],
+                    embeddings_test[:num_tsne],
+                    labels_train[:num_tsne],
+                    labels_test[:num_tsne],
                     path_save_classifier_plots,
                     classes)

@@ -53,16 +53,17 @@ print(f"\n[Info] - Start training the classifier.")
 history = classifier.fit(
     train_ds,
     epochs=epochs_class,
+    steps_per_epoch = 9000,
     batch_size=batch_size_class,
-    validation_data=test_ds,
+    validation_data=test_ds.take(test_size_classifier),
 )  # add additional arguments
 
 
 # --------------- Analysis of the classifier ----------------------------------
-# 1. Loss
+# 1. Loss and accuracy plots
 plot_classifier_training(history, epochs_class, path_save_classifier_plots)
 exp_data_fn = "train_results.npy"
 np.save(os.path.join(path_save_classifier_plots, exp_data_fn), history.history)
 
 # 2. Confusion matrix
-plot_confusion_matrix(test_ds, classifier, path_save_classifier_plots)
+plot_confusion_matrix(test_ds.take(test_size_classifier), classifier, path_save_classifier_plots)
