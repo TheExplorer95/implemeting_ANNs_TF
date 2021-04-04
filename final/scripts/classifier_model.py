@@ -19,8 +19,6 @@ def get_classifier(c_dim, num_classes, reduce_model):
     model = tf.keras.Model(
         inputs=embedding_inputs, outputs=outputs, name="music_classifier"
     )
-    model.summary()
-    model.layers[0].trainable = False  # do not train reduce_model
     return model
 
 
