@@ -65,7 +65,8 @@ def plot_confusion_matrix(test_ds, model, save_path):
     confusion_mtx = confusion_mtx / tf.reduce_sum(confusion_mtx, axis=None)  # normalize
     plt.figure(figsize=(10, 8))
     sns.heatmap(
-        confusion_mtx, xticklabels=classes, yticklabels=classes, annot=True, fmt="g"
+        confusion_mtx, xticklabels=classes, yticklabels=classes, annot=True, fmt="g",
+        cmap = sns.color_palette("dark:salmon_r", as_cmap=True)
     )
     plt.xlabel("Prediction")
     plt.ylabel("Label")
