@@ -33,14 +33,13 @@ for i in train_ds_cpc.take(1):
 print(f"[INFO] - Created the {cpc.name} model.\n")
 cpc.summary()
 
-# load trained model when training was stopped
+# load trained model to continue training when training was stopped intermediately
 if path_to_continue_training:
     cpc.load_weights(path_to_continue_training)
 
 # Loss and corresponding metric
 loss = InfoNCE()
 train_loss_metric_cpc = tf.keras.metrics.Mean("train_loss_CPC")
-
 
 # Training
 train_cpc(

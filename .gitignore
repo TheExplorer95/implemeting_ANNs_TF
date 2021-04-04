@@ -12,4 +12,6 @@ logs
 final/paper_commented.pdf
 final/data
 final/report
+final/plots
+final/plot_loss_cpc.ipynb
 final/scripts/__pycache__

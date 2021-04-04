@@ -4,17 +4,18 @@ import argparse
 import tensorflow as tf
 
 
+# Allows for GPU memory growth
 def configure_gpu_options():
-# allows for GPU memory growth
-    physical_devices = tf.config.list_physical_devices('GPU')
+
+    physical_devices = tf.config.list_physical_devices("GPU")
     try:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
     except Exception:
-        print('[INFO] - Cannot activate memory growth.')
+        print("[INFO] - Cannot activate memory growth.")
 
 
+# Class to measure times
 class Timer:
-    # A small class for making timings.
     def __init__(self):
         self._start_time = None
 
@@ -33,12 +34,14 @@ class Timer:
         return elapsed_time
 
 
+# Create the appropriate directory structure to save results and figures from experiments
 def check_dirs(path_list):
     for path in path_list:
         if not os.path.isdir(path):
             os.makedirs(path)
 
 
+# Used to parse script arguments
 def get_command_line_args():
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -53,6 +56,7 @@ def get_command_line_args():
     return vars(ap.parse_args())
 
 
+# Allow to use mixed precision training which can boost performance
 def set_mixed_precission(bool):
     if bool:
         tf.keras.mixed_precision.set_global_policy(

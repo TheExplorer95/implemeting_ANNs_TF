@@ -26,8 +26,11 @@ mse = tf.keras.losses.MeanSquaredError()  # loss
 reducer.compile(optimizer=optimizer_dimension_reduction, loss=mse)  # compile
 # train autoencoder
 history_dm = reducer.fit(
-     em_ds,  epochs=epochs_dimension_reduction,shuffle = True,  batch_size=batch_size_dimension_reduction
-)  # train
+    em_ds,
+    epochs=epochs_dimension_reduction,
+    shuffle=True,
+    batch_size=batch_size_dimension_reduction,
+)
 np.save(
     os.path.join(path_save_classifier_plots, "autoencoder_results.npy"),
     history_dm.history,
@@ -53,10 +56,10 @@ print(f"\n[Info] - Start training the classifier.")
 history = classifier.fit(
     train_ds,
     epochs=epochs_class,
-    steps_per_epoch = 9000,
+    steps_per_epoch=9000,
     batch_size=batch_size_class,
     validation_data=test_ds.take(test_size_classifier),
-)  # add additional arguments
+)
 
 
 # --------------- Analysis of the classifier ----------------------------------
@@ -66,4 +69,6 @@ exp_data_fn = "train_results.npy"
 np.save(os.path.join(path_save_classifier_plots, exp_data_fn), history.history)
 
 # 2. Confusion matrix
-plot_confusion_matrix(test_ds.take(test_size_classifier), classifier, path_save_classifier_plots)
+plot_confusion_matrix(
+    test_ds.take(test_size_classifier), classifier, path_save_classifier_plots
+)

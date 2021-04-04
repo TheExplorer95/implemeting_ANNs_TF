@@ -15,6 +15,17 @@ def train_step(
     train_loss_metric,
     mixed_precision=False,
 ):
+    """
+    perform a weight update for a single epoch.
+    :param model: tf.keras.Model
+    :param ds: tf.keras.data.Dataset
+    :param loss_function: tf.keras.loss
+    :param optimizer: tf.keras.optimizers
+    :param steps_per_epoch: int, num. batch to pass per epoch
+    :param train_loss_metric: tf.keras.metrics, metric to log train loss
+    :param mixed_precision: boolean, allow mixed_precision for performance boost if True
+    :return: None
+    """
     for batch in ds.take(steps_per_epoch):
 
         # forward pass with GradientTape
@@ -44,7 +55,6 @@ def train_step(
             train_loss_metric.update_state(loss)
 
 
-# formerly main eval train with mode (now we only train CPC with a custom train function and the classifier with model.fit()
 def train_cpc(
     cpc_model,
     train_ds,
@@ -57,6 +67,20 @@ def train_cpc(
     print_interval=10,
     checkpoint_interval=100,
 ):
+    """
+    Train a CPC model and save weights
+    :param cpc_model: tf.keras.model
+    :param train_ds: tf.keras.data.dataset
+    :param loss_function: tf.keras.loss
+    :param optimizer: tf.keras.optimizers
+    :param epochs: int, num. epochs to train for
+    :param steps_per_epoch: int, num. batch to pass for a single epoch
+    :param mixed_precision: boolean, allow mixed precision for performance boost if True
+    :param save_path: str, path to save weights
+    :param print_interval: int, in epochs, how often train progress is printed
+    :param checkpoint_interval: int, in epochs, how often weights are saved intermediately
+    :return: None
+    """
     timer = Timer()
     times = []
     train_losses = []

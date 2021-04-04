@@ -2,13 +2,12 @@
 import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-import tensorflow as tf
 import logging
 
 logging.getLogger("tensorflow").setLevel(logging.WARNING)
 
 # general imports
+import tensorflow as tf
 from datetime import datetime
 from utils import set_mixed_precission, get_command_line_args, check_dirs
 
@@ -18,8 +17,9 @@ set_mixed_precission(mixed_precision)
 
 # ----------- setting Path variables-----------------------------
 cmd_args = get_command_line_args()
-# one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
-modelname = cmd_args["model_name"]
+modelname = cmd_args[
+    "model_name"
+]  # one of '1dconv_gru/' '1dconv_gru/', '2dconv_gru/', '2dconv_transformer/'
 mode = "local"  # one of 'colab', 'local'
 
 if mode == "local":
@@ -58,6 +58,7 @@ path_save_classifier_plots = os.path.join(
     project_path, "results/classifier/", modelname, datetime_str
 )
 
+# create an appropriate directory structure
 check_dirs(
     [
         path_save_embeddings_train,
@@ -67,35 +68,34 @@ check_dirs(
     ]
 )
 
-# ------------- training params ---------------------------------
+# ------------- CPC training params ---------------------------------
 epochs_cpc = 700
-steps_per_epoch_cpc = 100
-optimizer_cpc = tf.keras.optimizers.Adam(1e-5)  # for cpc
+steps_per_epoch_cpc = 100  # how many batch are fed in a single epoch
+optimizer_cpc = tf.keras.optimizers.Adam(1e-5)
 
-#--------------- Classifier Training Hyperparameters-------------
+# --------------- Classifier Training params-------------
 epochs_class = 1
-optimizer_class = tf.keras.optimizers.Adam(1e-3)  # for classifier
+optimizer_class = tf.keras.optimizers.Adam(1e-3)
 batch_size_class = 32
-test_size_classifier = 5000
+test_size_classifier = 5000  # number of samples to be used as a test dataset
 
-#--------------- Dimension Reduction Hyperparameters for Classifier----
-r_dim = 32 #num dimensions
+# --------------- Dimension Reduction params (for classifier)----
+r_dim = 32  # num dimensions to reduce to
 epochs_dimension_reduction = 1
 optimizer_dimension_reduction = tf.keras.optimizers.Adam(1e-5)
 batch_size_dimension_reduction = 32
 
 
-
 # -------------- generate embeddings params --------------------------
 # How often to randomly sample from a single data to get different audio segments of length
 num_em_samples_per_train_data = 30
-num_em_samples_per_test_data = 1
+num_em_samples_per_test_data = 3
 
-#--------------- TSNE embedding visualization parameters -------------------------------
-num_tsne = 3000
+# --------------- TSNE embedding visualization parameters -------------------------------
+num_tsne = 3000  # number of points to plot in t-SNE
 
 # -------------- encoder params -----------------------------------
-z_dim = 256
+z_dim = 256  # dimension of latent representation
 
 # 1dconv encoder params (raw audio data)
 if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
@@ -113,14 +113,14 @@ if modelname == "1dconv_transformer/" or modelname == "1dconv_gru/":
         "activation": tf.nn.leaky_relu,
     }
     data_generator_arguments = {
-        "T": 27,  # timestep
-        "k": 3,  # timestep
-        "N": 8,  # number
-        "full_duration": 4,  # sec
-        "original_sr": 22050,  # Hz
-        "desired_sr": 4410,  # Hz
-        "data_path": path_data_cpc,
-    }  # str
+        "T": 27,  # num. timestep until current
+        "k": 3,  # num. timestep to predict
+        "N": 8,  # num. samples (N-1 = num. negative samples)
+        "full_duration": 4,  # sec, total length of a single sequence
+        "original_sr": 22050,  # Hz, sampling rate of original data
+        "desired_sr": 4410,  # Hz, sampling rate that is desired, used to down sample
+        "data_path": path_data_cpc,  # str, where to get raw audio data from
+    }
 
 # 2dconv encoder params (mel spectogram data)
 elif modelname == "2dconv_gru/" or modelname == "2dconv_transformer/":
@@ -168,6 +168,6 @@ elif modelname == "1dconv_transformer/" or modelname == "2dconv_transformer/":
         "dense_units": [100, c_dim],  # num. units for additional ffn
         "activation": tf.nn.leaky_relu,  # activation for additional ffn
         "maximum_position_encoding": data_generator_arguments["T"]
-        + data_generator_arguments["k"],
-        "rate": 0.1,
-    }  # dropout rate
+        + data_generator_arguments["k"],  # maximum length of a single sequence in steps
+        "rate": 0.1,  # dropout rate
+    }

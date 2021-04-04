@@ -1,4 +1,4 @@
-from params import * 
+from params import *
 import numpy as np
 import tensorflow as tf
 
@@ -6,7 +6,7 @@ import tensorflow as tf
 class GRU_AR(tf.keras.layers.Layer):
     """
     GRU RNN that takes a sequence of audio window embeddings and combines them into a context embedding.
-    c_dim: length of context embedding vector
+    :param c_dim: int, dimension of content vector (output dim of this layer)
     """
 
     def __init__(self, c_dim):
@@ -14,7 +14,7 @@ class GRU_AR(tf.keras.layers.Layer):
         self.gru = tf.keras.layers.GRU(
             c_dim,
             name="ar_context",
-        )
+        )  # return only the output of last time step
 
     def call(self, z_sequence):
         # input dim: [batch, T, z]
@@ -210,7 +210,7 @@ class Transformer(tf.keras.layers.Layer):
 
         self.dropout = tf.keras.layers.Dropout(rate)
 
-        # additional dense layer and dropouts at the end
+        # additional dense layer and dropouts at the end to generate a single context vector at the end
         self.fcnet = [
             [tf.keras.layers.Dense(n_l, activation), tf.keras.layers.Dropout(rate)]
             for n_l in dense_units
@@ -220,7 +220,7 @@ class Transformer(tf.keras.layers.Layer):
 
     def call(self, x, training, mask=None):
 
-        seq_len = tf.shape(x)[1]  # T+kN
+        seq_len = tf.shape(x)[1]  # T
 
         # adding embedding and position encoding.
         # x = self.embedding(x)  # (batch_size, input_seq_len, z_dim)
