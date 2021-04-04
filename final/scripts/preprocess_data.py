@@ -289,7 +289,7 @@ def create_classifier_dataset(embedding_path):
 
     ds = tf.data.Dataset.from_tensor_slices((embedding_data, em_onehot_labels))
 
-    return ds
+    return ds.prefetch(tf.data.AUTOTUNE)
 
 
 def create_autoencoder_dataset(embedding_path):
@@ -304,4 +304,4 @@ def create_autoencoder_dataset(embedding_path):
     ds = tf.data.Dataset.from_tensor_slices((embedding_data, embedding_data))
 
 
-    return ds
+    return ds.prefetch(tf.data.AUTOTUNE)

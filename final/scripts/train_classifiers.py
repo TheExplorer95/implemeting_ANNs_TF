@@ -53,7 +53,7 @@ print(f"\n[Info] - Start training the classifier.")
 history = classifier.fit(
     train_ds,
     epochs=epochs_class,
-    batch_size=batch_size_classifier,
+    batch_size=batch_size_class,
     validation_data=test_ds,
 )  # add additional arguments
 

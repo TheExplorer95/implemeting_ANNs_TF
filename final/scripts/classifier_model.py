@@ -6,7 +6,7 @@ import numpy as np
 def get_classifier(c_dim, num_classes, reduce_model):
     embedding_inputs = tf.keras.Input(shape=(c_dim))
     x = reduce_model.get_embeddings(embedding_inputs)  # first reduce dim
-    x = tf.keras.layers.LayerNormalization(x)
+    x = tf.keras.layers.LayerNormalization()(x)
     x = tf.keras.layers.Dense(64, activation="relu")(x)
     x = tf.keras.layers.Dropout(0.3)(x)
     x = tf.keras.layers.Dense(128, activation="relu")(x)
