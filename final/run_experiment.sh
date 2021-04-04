@@ -7,9 +7,9 @@ declare -a models=("2dconv_gru/")
 for model in ${models[@]}
 do
 	# train cpc_model
-		#python scripts/train_cpc.py -m $model
+	python scripts/train_cpc.py -m $model
    	# get embeddings
    	python scripts/generate_embeddings.py -m $model
    	# train classifier and plot results
-   	#python scripts/train_classifiers.py -m $model
+   	python scripts/train_classifiers.py -m $model
 done
