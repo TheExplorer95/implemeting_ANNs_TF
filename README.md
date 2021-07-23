@@ -1,4 +1,4 @@
-# Repo for the implementing ANNs with Tensorflow lecture
+# Repo for the 'Implementing ANNs with Tensorflow' lecture
 
 Contains solutions for all assignments
 
